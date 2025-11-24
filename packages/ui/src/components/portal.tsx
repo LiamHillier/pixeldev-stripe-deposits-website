@@ -1,4 +1,4 @@
-import { Portal as PortalPrimitive } from 'radix-ui';
+import * as PortalPrimitive from '@radix-ui/react-portal';
 
 export type PortalElement = React.ComponentRef<typeof PortalPrimitive.Root>;
 export type PortalProps = React.ComponentPropsWithoutRef<

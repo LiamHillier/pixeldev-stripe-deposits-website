@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
 import { cva, VariantProps } from 'class-variance-authority';
-import { Slot as SlotPrimitive } from 'radix-ui';
+import * as SlotPrimitive from '@radix-ui/react-slot';
 
 import { useMediaQuery } from '../hooks/use-media-query';
 import { cn } from '../lib/utils';

@@ -370,6 +370,8 @@ model Organization {
   billingPostalCode String?        @db.VarChar(16)
   billingCity       String?        @db.VarChar(255)
   billingState      String?        @db.VarChar(255)
+  siteUrl           String?        @db.VarChar(2000)
+  stripeAccountId   String?        @db.VarChar(255)
   apiKeys           ApiKey[]
   businessHours     WorkHours[]
   contacts          Contact[]
@@ -381,6 +383,8 @@ model Organization {
   webhooks          Webhook[]
 
   @@index([billingCustomerId], map: "IX_Organization_billingCustomerId")
+  @@index([siteUrl], map: "IX_Organization_siteUrl")
+  @@index([stripeAccountId], map: "IX_Organization_stripeAccountId")
 }
 
 model OrganizationLogo {
