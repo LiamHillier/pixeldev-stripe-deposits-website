@@ -35,8 +35,8 @@ export async function POST(request: Request): Promise<Response> {
     // Parse request body
     const body = (await request.json()) as CredentialsRequest;
 
-    // Verify plugin signature
-    const verification = await verifyPluginSignature(request, body);
+    // Verify plugin signature (don't require organization for OAuth credentials)
+    const verification = await verifyPluginSignature(request, body, false);
 
     if (!verification.success) {
       return NextResponse.json(

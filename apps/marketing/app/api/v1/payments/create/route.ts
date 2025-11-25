@@ -22,6 +22,7 @@ interface CreatePaymentIntentRequest {
   payment_method_id: string;
   payment_type: 'full' | 'deposit';
   site_url: string;
+  stripe_account_id: string; // Connected account ID from plugin
 }
 
 /**
@@ -39,8 +40,8 @@ export async function POST(request: Request): Promise<Response> {
     // Parse request body
     const body = (await request.json()) as CreatePaymentIntentRequest;
 
-    // Verify plugin signature
-    const verification = await verifyPluginSignature(request, body);
+    // Verify plugin signature (don't require organization in DB)
+    const verification = await verifyPluginSignature(request, body, false);
 
     if (!verification.success) {
       return NextResponse.json(
@@ -49,7 +50,7 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    const { organizationId, siteUrl, organization } = verification;
+    const { siteUrl } = verification;
 
     // Rate limiting (100 requests/minute per site)
     const rateCheck = rateLimiter.check(100, `payment:${siteUrl}`);
@@ -100,10 +101,18 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    // Initialize Stripe
-    const stripeSecretKey = process.env.BILLING_STRIPE_SECRET_KEY;
+    // Validate stripe_account_id
+    if (!body.stripe_account_id) {
+      return NextResponse.json(
+        { error: 'Missing stripe_account_id' },
+        { status: 400 }
+      );
+    }
+
+    // Initialize Stripe with Connect platform key
+    const stripeSecretKey = process.env.STRIPE_CONNECT_CLIENT_SECRET;
     if (!stripeSecretKey) {
-      console.error('BILLING_STRIPE_SECRET_KEY not configured');
+      console.error('STRIPE_CONNECT_CLIENT_SECRET not configured');
       return NextResponse.json(
         { error: 'Server configuration error' },
         { status: 500 }
@@ -112,51 +121,13 @@ export async function POST(request: Request): Promise<Response> {
 
     const stripe = new Stripe(stripeSecretKey);
 
-    // Detect tenant plan (free vs pro)
-    const subscriptions = await prisma.subscription.findMany({
-      where: {
-        organizationId: organizationId,
-        active: true,
-        status: {
-          in: ['active', 'trialing'],
-        },
-      },
-      include: {
-        items: true,
-      },
-    });
-
-    const orders = await prisma.order.findMany({
-      where: {
-        organizationId: organizationId,
-        status: 'completed',
-      },
-      include: {
-        items: true,
-      },
-    });
-
-    // Check if user has pro or lifetime subscription/purchase
-    const hasProSubscription = subscriptions.some((sub: { items: Array<{ productId: string }> }) =>
-      sub.items.some(
-        (item: { productId: string }) => item.productId === 'pro' || item.productId === 'lifetime'
-      )
-    );
-
-    const hasProPurchase = orders.some((order: { items: Array<{ productId: string }> }) =>
-      order.items.some(
-        (item: { productId: string }) => item.productId === 'pro' || item.productId === 'lifetime'
-      )
-    );
-
-    const isPro = hasProSubscription || hasProPurchase;
-
-    // Calculate application fee
-    const feePercentage = isPro ? 0 : 2; // 0% for pro, 2% for free
+    // For public plugin: everyone gets 2% fee unless they have a valid license
+    // TODO: Implement license validation endpoint
+    const feePercentage = 2; // 2% for all users for now
     const applicationFeeAmount = Math.round((body.amount * feePercentage) / 100);
 
     console.log(
-      `[Payment Proxy] Creating PaymentIntent for ${siteUrl} - Amount: $${body.amount / 100}, Fee: ${feePercentage}%, Fee Amount: $${applicationFeeAmount / 100}, Plan: ${isPro ? 'PRO' : 'FREE'}`
+      `[Payment Proxy] Creating PaymentIntent for ${siteUrl} - Amount: $${body.amount / 100}, Fee: ${feePercentage}%, Fee Amount: $${applicationFeeAmount / 100}`
     );
 
     // Get or create Stripe customer
@@ -173,28 +144,13 @@ export async function POST(request: Request): Promise<Response> {
       stripeCustomer = await stripe.customers.create({
         email: body.customer_email,
         metadata: {
-          organization_id: organizationId,
           site_url: siteUrl,
           wp_order_id: body.order_id.toString(),
         },
       });
     }
 
-    // Check if organization has Stripe Connect account
-    const stripeAccountId = organization.stripeAccountId;
-
-    if (!stripeAccountId) {
-      console.error(
-        `Organization ${organizationId} has no Stripe Connect account`
-      );
-      return NextResponse.json(
-        {
-          error:
-            'Stripe account not connected. Please connect your Stripe account in the plugin settings.',
-        },
-        { status: 400 }
-      );
-    }
+    const stripeAccountId = body.stripe_account_id;
 
     // Create PaymentIntent with conditional fee
     const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
@@ -202,19 +158,17 @@ export async function POST(request: Request): Promise<Response> {
       currency: body.currency.toLowerCase(),
       customer: stripeCustomer.id,
       payment_method: body.payment_method_id,
-      // Do NOT confirm here - let the plugin confirm via Stripe.js
+      // Don't confirm - let frontend handle it (required for 3D Secure with WooCommerce Blocks)
       confirm: false,
       // Route payment to connected account
       transfer_data: {
         destination: stripeAccountId,
       },
       metadata: {
-        organization_id: organizationId,
         site_url: siteUrl,
         wp_order_id: body.order_id.toString(),
         payment_type: body.payment_type,
         fee_percentage: feePercentage.toString(),
-        plan_type: isPro ? 'pro' : 'free',
       },
     };
 
@@ -228,18 +182,18 @@ export async function POST(request: Request): Promise<Response> {
     );
 
     console.log(
-      `[Payment Proxy] PaymentIntent created: ${paymentIntent.id} for ${siteUrl}`
+      `[Payment Proxy] PaymentIntent created: ${paymentIntent.id} for ${siteUrl}, status: ${paymentIntent.status} (will be confirmed on frontend)`
     );
 
-    // Return client_secret to plugin
+    // Return payment details to plugin for frontend confirmation
     return NextResponse.json({
       success: true,
       client_secret: paymentIntent.client_secret,
       payment_intent_id: paymentIntent.id,
+      status: 'requires_confirmation', // Frontend will confirm
       fee: {
         percentage: feePercentage,
         amount: applicationFeeAmount,
-        plan_type: isPro ? 'pro' : 'free',
       },
     });
   } catch (error: unknown) {

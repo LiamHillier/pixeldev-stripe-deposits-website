@@ -32,11 +32,13 @@ export interface PluginVerificationError {
  *
  * @param request - Next.js Request object
  * @param body - Request body (for signature verification)
+ * @param requireOrganization - Whether to require organization to exist (default: true)
  * @returns Verification result with organization context or error
  */
 export async function verifyPluginSignature(
   request: Request,
-  body: unknown = null
+  body: unknown = null,
+  requireOrganization: boolean = true
 ): Promise<PluginVerificationResult | PluginVerificationError> {
   // Get secret key from environment
   const secretKey = process.env.PIXELDEV_PLUGIN_SECRET_KEY;
@@ -101,6 +103,10 @@ export async function verifyPluginSignature(
     .update(dataToSign)
     .digest('hex');
 
+  console.log('[Signature Debug] Data to sign:', dataToSign);
+  console.log('[Signature Debug] Expected signature:', expectedSignature);
+  console.log('[Signature Debug] Received signature:', signature);
+
   // Compare signatures (constant-time comparison)
   const signatureValid = crypto.timingSafeEqual(
     Buffer.from(signature),
@@ -108,7 +114,9 @@ export async function verifyPluginSignature(
   );
 
   if (!signatureValid) {
-    console.warn(`Invalid signature from site: ${siteUrl}`);
+    console.warn(`[Signature Error] Invalid signature from site: ${siteUrl}`);
+    console.warn('[Signature Error] Expected:', expectedSignature);
+    console.warn('[Signature Error] Received:', signature);
     return {
       success: false,
       error: 'Invalid signature',
@@ -116,7 +124,22 @@ export async function verifyPluginSignature(
     };
   }
 
-  // Find organization by site URL
+  // Find organization by site URL (optional for some endpoints)
+  if (!requireOrganization) {
+    // Skip organization lookup for endpoints that don't need it
+    return {
+      success: true,
+      siteUrl: siteUrl.replace(/\/$/, ''),
+      organizationId: '',
+      organization: {
+        id: '',
+        name: '',
+        billingCustomerId: null,
+        stripeAccountId: null,
+      },
+    };
+  }
+
   try {
     // Normalize site URL (remove trailing slash)
     const normalizedSiteUrl = siteUrl.replace(/\/$/, '');
