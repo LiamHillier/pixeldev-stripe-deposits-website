@@ -19,6 +19,7 @@ interface CreatePaymentIntentRequest {
   amount: number; // Amount in cents
   currency: string;
   customer_email: string;
+  customer_name?: string; // Optional customer name
   payment_method_id: string;
   payment_type: 'full' | 'deposit';
   site_url: string;
@@ -126,33 +127,44 @@ export async function POST(request: Request): Promise<Response> {
     const feePercentage = 2; // 2% for all users for now
     const applicationFeeAmount = Math.round((body.amount * feePercentage) / 100);
 
+    const stripeAccountId = body.stripe_account_id;
+
     console.log(
-      `[Payment Proxy] Creating PaymentIntent for ${siteUrl} - Amount: $${body.amount / 100}, Fee: ${feePercentage}%, Fee Amount: $${applicationFeeAmount / 100}`
+      `[Payment Proxy] Creating PaymentIntent for ${siteUrl} - Amount: $${body.amount / 100}, Fee: ${feePercentage}%, Fee Amount: $${applicationFeeAmount / 100}, Connected Account: ${stripeAccountId}`
     );
 
-    // Get or create Stripe customer
+    // Get or create Stripe customer ON THE CONNECTED ACCOUNT
+    // This ensures the customer, payment method, and future subscriptions are all on the same account
     let stripeCustomer: Stripe.Customer;
 
-    const existingCustomers = await stripe.customers.list({
-      email: body.customer_email,
-      limit: 1,
-    });
+    const existingCustomers = await stripe.customers.list(
+      {
+        email: body.customer_email,
+        limit: 1,
+      },
+      { stripeAccount: stripeAccountId } // ON CONNECTED ACCOUNT
+    );
 
     if (existingCustomers.data.length > 0) {
       stripeCustomer = existingCustomers.data[0];
+      console.log(`[Payment Proxy] Found existing customer on connected account: ${stripeCustomer.id}`);
     } else {
-      stripeCustomer = await stripe.customers.create({
-        email: body.customer_email,
-        metadata: {
-          site_url: siteUrl,
-          wp_order_id: body.order_id.toString(),
+      stripeCustomer = await stripe.customers.create(
+        {
+          email: body.customer_email,
+          name: body.customer_name || undefined,
+          metadata: {
+            site_url: siteUrl,
+            wp_order_id: body.order_id.toString(),
+          },
         },
-      });
+        { stripeAccount: stripeAccountId } // ON CONNECTED ACCOUNT
+      );
+      console.log(`[Payment Proxy] Created new customer on connected account: ${stripeCustomer.id}`);
     }
 
-    const stripeAccountId = body.stripe_account_id;
-
-    // Create PaymentIntent with conditional fee
+    // Create PaymentIntent ON THE CONNECTED ACCOUNT (direct charge)
+    // This allows the payment method to be properly attached to the customer for subscriptions
     const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
       amount: body.amount,
       currency: body.currency.toLowerCase(),
@@ -160,10 +172,8 @@ export async function POST(request: Request): Promise<Response> {
       payment_method: body.payment_method_id,
       // Don't confirm - let frontend handle it (required for 3D Secure with WooCommerce Blocks)
       confirm: false,
-      // Route payment to connected account
-      transfer_data: {
-        destination: stripeAccountId,
-      },
+      // CRITICAL: Save payment method for future subscription use (off_session charges)
+      setup_future_usage: 'off_session',
       metadata: {
         site_url: siteUrl,
         wp_order_id: body.order_id.toString(),
@@ -173,12 +183,15 @@ export async function POST(request: Request): Promise<Response> {
     };
 
     // Only add application fee if > 0 (free users)
+    // Application fees work with direct charges on connected accounts
     if (applicationFeeAmount > 0) {
       paymentIntentParams.application_fee_amount = applicationFeeAmount;
     }
 
+    // Create PaymentIntent ON THE CONNECTED ACCOUNT
     const paymentIntent = await stripe.paymentIntents.create(
-      paymentIntentParams
+      paymentIntentParams,
+      { stripeAccount: stripeAccountId } // ON CONNECTED ACCOUNT
     );
 
     console.log(
@@ -186,10 +199,12 @@ export async function POST(request: Request): Promise<Response> {
     );
 
     // Return payment details to plugin for frontend confirmation
+    // Include customer_id so plugin can store it for subscription creation
     return NextResponse.json({
       success: true,
       client_secret: paymentIntent.client_secret,
       payment_intent_id: paymentIntent.id,
+      customer_id: stripeCustomer.id, // Customer ID on connected account for subscriptions
       status: 'requires_confirmation', // Frontend will confirm
       fee: {
         percentage: feePercentage,

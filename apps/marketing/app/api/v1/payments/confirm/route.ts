@@ -98,21 +98,21 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const stripe = new Stripe(stripeSecretKey, {
-      apiVersion: '2024-11-20.acacia',
+      apiVersion: '2025-05-28.basil',
     });
 
     console.log(`[Payment Confirm] Confirming PaymentIntent: ${body.payment_intent_id}`);
-    console.log(`[Payment Confirm] Connected Account (for transfer): ${body.stripe_account_id}`);
+    console.log(`[Payment Confirm] Connected Account: ${body.stripe_account_id}`);
 
-    // Confirm the PaymentIntent on the platform account
-    // PaymentIntent was created on platform with transfer_data.destination, NOT on connected account
+    // Confirm the PaymentIntent ON THE CONNECTED ACCOUNT
+    // PaymentIntent was created on the connected account (direct charge), so must be confirmed there too
     const paymentIntent = await stripe.paymentIntents.confirm(
       body.payment_intent_id,
       {
         payment_method: body.payment_method_id,
         return_url: body.return_url,
-      }
-      // Note: No stripeAccount option - PaymentIntent is on platform account
+      },
+      { stripeAccount: body.stripe_account_id } // ON CONNECTED ACCOUNT
     );
 
     console.log(`[Payment Confirm] PaymentIntent confirmed with status: ${paymentIntent.status}`);

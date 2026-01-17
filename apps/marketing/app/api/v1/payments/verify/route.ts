@@ -74,15 +74,18 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const stripe = new Stripe(stripeSecretKey, {
-      apiVersion: '2024-11-20.acacia',
+      apiVersion: '2025-05-28.basil',
     });
 
     console.log(`[Payment Verify] Retrieving PaymentIntent: ${body.payment_intent_id}`);
+    console.log(`[Payment Verify] Connected Account: ${body.stripe_account_id}`);
 
-    // Retrieve the PaymentIntent from the platform account
-    // (PaymentIntent was created on platform with transfer_data.destination)
+    // Retrieve the PaymentIntent FROM THE CONNECTED ACCOUNT
+    // PaymentIntent was created on the connected account (direct charge)
     const paymentIntent = await stripe.paymentIntents.retrieve(
-      body.payment_intent_id
+      body.payment_intent_id,
+      undefined,
+      { stripeAccount: body.stripe_account_id } // ON CONNECTED ACCOUNT
     );
 
     console.log(`[Payment Verify] PaymentIntent status: ${paymentIntent.status}`);
