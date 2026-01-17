@@ -122,7 +122,7 @@ export async function POST(request: Request): Promise<Response> {
       return NextResponse.json({
         success: true,
         status: 'requires_action',
-        next_action_redirect_url: paymentIntent.next_action.redirect_to_url.url,
+        next_action_redirect_url: paymentIntent.next_action.redirect_to_url?.url,
       });
     }
 
