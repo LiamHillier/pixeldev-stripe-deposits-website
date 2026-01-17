@@ -24,6 +24,7 @@ interface CreatePaymentIntentRequest {
   payment_type: 'full' | 'deposit';
   site_url: string;
   stripe_account_id: string; // Connected account ID from plugin
+  idempotency_key?: string; // Optional idempotency key to prevent duplicate payments
 }
 
 /**
@@ -122,15 +123,38 @@ export async function POST(request: Request): Promise<Response> {
 
     const stripe = new Stripe(stripeSecretKey);
 
-    // For public plugin: everyone gets 2% fee unless they have a valid license
-    // TODO: Implement license validation endpoint
-    const feePercentage = 2; // 2% for all users for now
+    // Look up organization by site URL to check license status
+    const organization = await prisma.organization.findFirst({
+      where: { siteUrl },
+      select: {
+        licenseStatus: true,
+        licenseExpiresAt: true,
+      },
+    });
+
+    // Determine fee based on license status
+    // 0% fee if license is active and not expired
+    // 2% fee otherwise
+    let hasValidLicense = false;
+    if (organization?.licenseStatus === 'active') {
+      // Check if license has expired
+      if (organization.licenseExpiresAt) {
+        hasValidLicense = new Date() < new Date(organization.licenseExpiresAt);
+      } else {
+        // No expiry date means lifetime license
+        hasValidLicense = true;
+      }
+    }
+
+    const feePercentage = hasValidLicense ? 0 : 2;
     const applicationFeeAmount = Math.round((body.amount * feePercentage) / 100);
 
     const stripeAccountId = body.stripe_account_id;
 
+    const planType = hasValidLicense ? 'pro' : 'free';
+
     console.log(
-      `[Payment Proxy] Creating PaymentIntent for ${siteUrl} - Amount: $${body.amount / 100}, Fee: ${feePercentage}%, Fee Amount: $${applicationFeeAmount / 100}, Connected Account: ${stripeAccountId}`
+      `[Payment Proxy] Creating PaymentIntent for ${siteUrl} - Amount: $${body.amount / 100}, Fee: ${feePercentage}% (${planType}), Fee Amount: $${applicationFeeAmount / 100}, Connected Account: ${stripeAccountId}`
     );
 
     // Get or create Stripe customer ON THE CONNECTED ACCOUNT
@@ -188,10 +212,21 @@ export async function POST(request: Request): Promise<Response> {
       paymentIntentParams.application_fee_amount = applicationFeeAmount;
     }
 
+    // Stripe request options - always include connected account
+    const stripeRequestOptions: Stripe.RequestOptions = {
+      stripeAccount: stripeAccountId, // ON CONNECTED ACCOUNT
+    };
+
+    // Add idempotency key if provided to prevent duplicate payments
+    if (body.idempotency_key) {
+      stripeRequestOptions.idempotencyKey = body.idempotency_key;
+      console.log(`[Payment Proxy] Using idempotency key: ${body.idempotency_key.substring(0, 20)}...`);
+    }
+
     // Create PaymentIntent ON THE CONNECTED ACCOUNT
     const paymentIntent = await stripe.paymentIntents.create(
       paymentIntentParams,
-      { stripeAccount: stripeAccountId } // ON CONNECTED ACCOUNT
+      stripeRequestOptions
     );
 
     console.log(
@@ -209,6 +244,7 @@ export async function POST(request: Request): Promise<Response> {
       fee: {
         percentage: feePercentage,
         amount: applicationFeeAmount,
+        plan_type: planType,
       },
     });
   } catch (error: unknown) {

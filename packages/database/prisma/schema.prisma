@@ -372,6 +372,11 @@ model Organization {
   billingState      String?        @db.VarChar(255)
   siteUrl           String?        @db.VarChar(2000)
   stripeAccountId   String?        @db.VarChar(255)
+  // License tracking for payment fee calculation
+  licenseKey        String?        @db.VarChar(255)
+  licenseEmail      String?        @db.VarChar(255)
+  licenseStatus     String?        @db.VarChar(32)  // 'active', 'expired', 'invalid', null
+  licenseExpiresAt  DateTime?
   apiKeys           ApiKey[]
   businessHours     WorkHours[]
   contacts          Contact[]
