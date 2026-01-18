@@ -89,6 +89,9 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
+    // Normalize email to prevent duplicate customers from case differences
+    const normalizedEmail = body.customer_email.toLowerCase().trim();
+
     if (!body.payment_method_id) {
       return NextResponse.json(
         { error: 'Missing payment_method_id' },
@@ -157,43 +160,166 @@ export async function POST(request: Request): Promise<Response> {
       `[Payment Proxy] Creating PaymentIntent for ${siteUrl} - Amount: $${body.amount / 100}, Fee: ${feePercentage}% (${planType}), Fee Amount: $${applicationFeeAmount / 100}, Connected Account: ${stripeAccountId}`
     );
 
-    // Get or create Stripe customer ON THE CONNECTED ACCOUNT
-    // This ensures the customer, payment method, and future subscriptions are all on the same account
-    let stripeCustomer: Stripe.Customer;
+    // ============================================================
+    // STEP 1: Create or find PLATFORM customer (no stripeAccount header)
+    // The PaymentMethod must be attached to a platform customer before cloning
+    // ============================================================
+    let platformCustomer: Stripe.Customer;
 
-    const existingCustomers = await stripe.customers.list(
-      {
-        email: body.customer_email,
-        limit: 1,
-      },
-      { stripeAccount: stripeAccountId } // ON CONNECTED ACCOUNT
+    // Search for existing platform customer by normalized email
+    const existingPlatformCustomers = await stripe.customers.list({
+      email: normalizedEmail,
+      limit: 10, // Get more results in case of duplicates, use the most recent
+    });
+
+    // Filter to exact email match (case-insensitive) and non-deleted customers
+    const matchingPlatformCustomers = existingPlatformCustomers.data.filter(
+      (c) => c.email?.toLowerCase() === normalizedEmail && !c.deleted
     );
 
-    if (existingCustomers.data.length > 0) {
-      stripeCustomer = existingCustomers.data[0];
-      console.log(`[Payment Proxy] Found existing customer on connected account: ${stripeCustomer.id}`);
+    if (matchingPlatformCustomers.length > 0) {
+      // Use the most recently created customer (first in list, as Stripe returns newest first)
+      platformCustomer = matchingPlatformCustomers[0];
+      console.log(`[Payment Proxy] Found existing platform customer: ${platformCustomer.id} (${matchingPlatformCustomers.length} total matches)`);
     } else {
-      stripeCustomer = await stripe.customers.create(
+      platformCustomer = await stripe.customers.create({
+        email: normalizedEmail,
+        name: body.customer_name || undefined,
+        metadata: {
+          site_url: siteUrl,
+          source: 'pixeldev-stripe-deposits',
+        },
+      });
+      console.log(`[Payment Proxy] Created new platform customer: ${platformCustomer.id}`);
+    }
+
+    // ============================================================
+    // STEP 2: Attach PaymentMethod to platform customer
+    // This is required before the PM can be cloned to connected accounts
+    // ============================================================
+    try {
+      await stripe.paymentMethods.attach(body.payment_method_id, {
+        customer: platformCustomer.id,
+      });
+      console.log(
+        `[Payment Proxy] Attached payment method ${body.payment_method_id} to platform customer ${platformCustomer.id}`
+      );
+    } catch (attachError: unknown) {
+      // PM might already be attached - that's OK
+      if (attachError instanceof Stripe.errors.StripeError && attachError.code === 'resource_already_exists') {
+        console.log(
+          `[Payment Proxy] Payment method ${body.payment_method_id} already attached to a customer`
+        );
+      } else {
+        console.error('[Payment Proxy] Failed to attach payment method to platform customer:', attachError);
+        throw attachError;
+      }
+    }
+
+    // ============================================================
+    // STEP 3: Clone PaymentMethod to connected account
+    // Using customer + payment_method params as per Stripe docs
+    // ============================================================
+    let clonedPaymentMethod: Stripe.PaymentMethod;
+
+    try {
+      clonedPaymentMethod = await stripe.paymentMethods.create(
         {
-          email: body.customer_email,
+          customer: platformCustomer.id,
+          payment_method: body.payment_method_id,
+        },
+        { stripeAccount: stripeAccountId }
+      );
+      console.log(
+        `[Payment Proxy] Cloned payment method ${body.payment_method_id} -> ${clonedPaymentMethod.id} on connected account`
+      );
+    } catch (cloneError) {
+      console.error('[Payment Proxy] Failed to clone payment method:', cloneError);
+      throw cloneError;
+    }
+
+    // ============================================================
+    // STEP 4: Create or find customer on CONNECTED account
+    // ============================================================
+    let connectedCustomer: Stripe.Customer;
+
+    // Search for existing connected customer by normalized email
+    const existingConnectedCustomers = await stripe.customers.list(
+      {
+        email: normalizedEmail,
+        limit: 10, // Get more results in case of duplicates
+      },
+      { stripeAccount: stripeAccountId }
+    );
+
+    // Filter to exact email match (case-insensitive) and non-deleted customers
+    const matchingConnectedCustomers = existingConnectedCustomers.data.filter(
+      (c) => c.email?.toLowerCase() === normalizedEmail && !c.deleted
+    );
+
+    if (matchingConnectedCustomers.length > 0) {
+      // Use the most recently created customer
+      connectedCustomer = matchingConnectedCustomers[0];
+      console.log(`[Payment Proxy] Found existing customer on connected account: ${connectedCustomer.id} (${matchingConnectedCustomers.length} total matches)`);
+
+      // Attach the cloned payment method to the existing customer
+      try {
+        await stripe.paymentMethods.attach(
+          clonedPaymentMethod.id,
+          { customer: connectedCustomer.id },
+          { stripeAccount: stripeAccountId }
+        );
+        console.log(
+          `[Payment Proxy] Attached cloned PM ${clonedPaymentMethod.id} to existing connected customer ${connectedCustomer.id}`
+        );
+      } catch (attachError: unknown) {
+        // PM might already be attached to this customer - that's OK
+        if (attachError instanceof Stripe.errors.StripeError && attachError.code === 'resource_already_exists') {
+          console.log(`[Payment Proxy] Cloned PM ${clonedPaymentMethod.id} already attached to connected customer`);
+        } else {
+          throw attachError;
+        }
+      }
+
+      // Update default payment method
+      await stripe.customers.update(
+        connectedCustomer.id,
+        {
+          invoice_settings: {
+            default_payment_method: clonedPaymentMethod.id,
+          },
+        },
+        { stripeAccount: stripeAccountId }
+      );
+    } else {
+      // Create new customer with the cloned payment method already attached
+      connectedCustomer = await stripe.customers.create(
+        {
+          email: normalizedEmail,
           name: body.customer_name || undefined,
+          payment_method: clonedPaymentMethod.id,
+          invoice_settings: {
+            default_payment_method: clonedPaymentMethod.id,
+          },
           metadata: {
+            platform_customer_id: platformCustomer.id,
             site_url: siteUrl,
             wp_order_id: body.order_id.toString(),
           },
         },
-        { stripeAccount: stripeAccountId } // ON CONNECTED ACCOUNT
+        { stripeAccount: stripeAccountId }
       );
-      console.log(`[Payment Proxy] Created new customer on connected account: ${stripeCustomer.id}`);
+      console.log(`[Payment Proxy] Created new customer on connected account: ${connectedCustomer.id}`);
     }
 
-    // Create PaymentIntent ON THE CONNECTED ACCOUNT (direct charge)
-    // This allows the payment method to be properly attached to the customer for subscriptions
+    // ============================================================
+    // STEP 5: Create PaymentIntent ON THE CONNECTED ACCOUNT (direct charge)
+    // ============================================================
     const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
       amount: body.amount,
       currency: body.currency.toLowerCase(),
-      customer: stripeCustomer.id,
-      payment_method: body.payment_method_id,
+      customer: connectedCustomer.id,
+      payment_method: clonedPaymentMethod.id,
       // Don't confirm - let frontend handle it (required for 3D Secure with WooCommerce Blocks)
       confirm: false,
       // CRITICAL: Save payment method for future subscription use (off_session charges)
@@ -203,6 +329,7 @@ export async function POST(request: Request): Promise<Response> {
         wp_order_id: body.order_id.toString(),
         payment_type: body.payment_type,
         fee_percentage: feePercentage.toString(),
+        platform_customer_id: platformCustomer.id,
       },
     };
 
@@ -239,7 +366,8 @@ export async function POST(request: Request): Promise<Response> {
       success: true,
       client_secret: paymentIntent.client_secret,
       payment_intent_id: paymentIntent.id,
-      customer_id: stripeCustomer.id, // Customer ID on connected account for subscriptions
+      customer_id: connectedCustomer.id, // Customer ID on connected account for subscriptions
+      payment_method_id: clonedPaymentMethod.id, // Cloned PM on connected account
       status: 'requires_confirmation', // Frontend will confirm
       fee: {
         percentage: feePercentage,
