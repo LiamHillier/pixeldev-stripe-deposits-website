@@ -2,7 +2,8 @@
 
 import { auth } from '@workspace/auth';
 import { APP_NAME } from '@workspace/common/app';
-import { TicketPriority, prisma } from '@workspace/database/client';
+import { TicketPriority } from '@workspace/database';
+import { prisma } from '@workspace/database/client';
 import { sendSupportTicketCreatedEmail } from '@workspace/email/send-support-ticket-created-email';
 import { routes } from '@workspace/routes';
 
@@ -27,9 +28,11 @@ export async function createSupportTicket(
   try {
     const session = await auth();
 
-    if (!session?.user?.id) {
+    const user = session?.user;
+    if (!user?.id) {
       return { success: false, error: 'You must be logged in to create a ticket' };
     }
+    const userId = user.id;
 
     // Validate input
     const validated = createTicketSchema.safeParse(input);
@@ -41,7 +44,7 @@ export async function createSupportTicket(
 
     // Get user's organization
     const membership = await prisma.membership.findFirst({
-      where: { userId: session.user.id },
+      where: { userId: userId },
       include: { organization: true },
       orderBy: { createdAt: 'asc' }
     });
@@ -56,7 +59,7 @@ export async function createSupportTicket(
       const newTicket = await tx.supportTicket.create({
         data: {
           organizationId: membership.organization.id,
-          userId: session.user.id,
+          userId: userId,
           subject,
           priority: priority as TicketPriority
         }
@@ -69,7 +72,7 @@ export async function createSupportTicket(
       await tx.supportTicketMessage.create({
         data: {
           ticketId: newTicket.id,
-          userId: session.user.id,
+          userId: userId,
           isStaff: false,
           message,
           messageId
@@ -86,8 +89,8 @@ export async function createSupportTicket(
       await sendSupportTicketCreatedEmail({
         appName: APP_NAME,
         ticketNumber: ticket.ticketNumber,
-        customerName: session.user.name || 'Customer',
-        customerEmail: session.user.email || 'unknown@example.com',
+        customerName: user.name || 'Customer',
+        customerEmail: user.email || 'unknown@example.com',
         subject,
         message,
         priority,

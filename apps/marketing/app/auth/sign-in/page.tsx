@@ -48,7 +48,7 @@ function SignInPageContent(): React.JSX.Element {
       } else if (result?.ok) {
         window.location.href = callbackUrl;
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred');
       setIsLoading(false);
     }

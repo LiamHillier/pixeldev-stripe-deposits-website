@@ -61,7 +61,7 @@ export default function ActivateAccountPage(): React.JSX.Element {
         // The activateAccount function will redirect to account page
         // but we show success message briefly first
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
     }

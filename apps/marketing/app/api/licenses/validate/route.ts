@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { LicenseActivityType, prisma } from '@workspace/database/client';
+import { LicenseActivityType } from '@workspace/database';
+import { prisma } from '@workspace/database/client';
 
 type ValidateRequest = {
   licenseKey: string;

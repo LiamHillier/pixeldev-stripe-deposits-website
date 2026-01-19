@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { LicenseActivityType, prisma } from '@workspace/database/client';
+import { LicenseActivityType } from '@workspace/database';
+import { prisma } from '@workspace/database/client';
 import { routes } from '@workspace/routes';
 
 import { getUserLicenses } from '~/data/get-user-licenses';

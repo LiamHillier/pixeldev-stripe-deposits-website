@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { LicenseActivityType, prisma } from '@workspace/database/client';
+import { LicenseActivityType } from '@workspace/database';
+import { prisma } from '@workspace/database/client';
 import { inMemoryRateLimiter } from '@workspace/rate-limit/in-memory';
 import { verifyPluginSignature } from '../../_lib/verify-plugin-signature';
 

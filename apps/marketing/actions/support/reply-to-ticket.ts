@@ -28,10 +28,12 @@ export async function replyToTicket(
 ): Promise<ReplyTicketResult> {
   try {
     const session = await auth();
+    const user = session?.user;
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return { success: false, error: 'You must be logged in to reply' };
     }
+    const userId = user.id;
 
     // Validate input
     const validated = replyTicketSchema.safeParse(input);
@@ -45,7 +47,7 @@ export async function replyToTicket(
     const ticket = await prisma.supportTicket.findFirst({
       where: {
         id: ticketId,
-        userId: session.user.id
+        userId: userId
       },
       include: {
         messages: {
@@ -73,7 +75,7 @@ export async function replyToTicket(
       await tx.supportTicketMessage.create({
         data: {
           ticketId: ticket.id,
-          userId: session.user.id,
+          userId: userId,
           isStaff: false,
           message,
           messageId
@@ -98,8 +100,8 @@ export async function replyToTicket(
       await sendSupportTicketUserReplyEmail({
         appName: APP_NAME,
         ticketNumber: ticket.ticketNumber,
-        customerName: session.user.name || 'Customer',
-        customerEmail: session.user.email || 'unknown@example.com',
+        customerName: user.name || 'Customer',
+        customerEmail: user.email || 'unknown@example.com',
         subject: ticket.subject,
         message,
         ticketUrl,

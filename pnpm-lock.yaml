@@ -47,6 +47,9 @@ importers:
       '@workspace/analytics':
         specifier: workspace:*
         version: link:../../packages/analytics
+      '@workspace/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@workspace/billing':
         specifier: workspace:*
         version: link:../../packages/billing
@@ -56,6 +59,9 @@ importers:
       '@workspace/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@workspace/email':
+        specifier: workspace:*
+        version: link:../../packages/email
       '@workspace/rate-limit':
         specifier: workspace:*
         version: link:../../packages/rate-limit
