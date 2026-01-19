@@ -2,7 +2,6 @@ import { cache } from 'react';
 import NextAuth, { type NextAuthConfig } from 'next-auth';
 import { encode } from 'next-auth/jwt';
 
-import { baseUrl, getPathname, routes } from '@workspace/routes';
 
 import { keys } from '../keys';
 import { adapter } from './adapter';
@@ -17,10 +16,10 @@ export const authConfig = {
   secret: keys().AUTH_SECRET,
   session,
   pages: {
-    signIn: getPathname(routes.marketing.auth.SignIn, baseUrl.Marketing),
-    signOut: getPathname(routes.marketing.auth.SignIn, baseUrl.Marketing),
+    signIn: '/auth/sign-in',
+    signOut: '/auth/sign-in',
     error: '/auth/error',
-    newUser: getPathname(routes.marketing.account.Index, baseUrl.Marketing)
+    newUser: '/account'
   },
   callbacks,
   events,
