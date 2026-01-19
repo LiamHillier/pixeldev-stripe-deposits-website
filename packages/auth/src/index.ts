@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import NextAuth, { type NextAuthConfig } from 'next-auth';
-import { encode } from 'next-auth/jwt';
-
+import { decode, encode } from 'next-auth/jwt';
+import { validate as uuidValidate } from 'uuid';
 
 import { keys } from '../keys';
 import { adapter } from './adapter';
@@ -28,6 +28,24 @@ export const authConfig = {
     // Required line to encode credentials sessions
     async encode(arg) {
       return (arg.token?.sessionId as string) ?? encode(arg);
+    },
+    // Required line to decode credentials sessions (look up session in database)
+    async decode(arg) {
+      if (arg.token && uuidValidate(arg.token)) {
+        // Token is a session ID, look up in database
+        const dbSession = await adapter.getSessionAndUser!(arg.token);
+        if (dbSession) {
+          return {
+            sub: dbSession.user.id,
+            name: dbSession.user.name,
+            email: dbSession.user.email,
+            sessionId: arg.token
+          };
+        }
+        return null;
+      }
+      // Fall back to standard JWT decode
+      return decode(arg);
     }
   },
   trustHost: true

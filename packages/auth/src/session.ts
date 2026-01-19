@@ -79,7 +79,7 @@ export function getSessionExpiryFromNow(): Date {
 }
 
 export const session = {
-  strategy: 'database',
+  strategy: 'jwt',
   maxAge: 60 * 60 * 24 * 30, // 30 days
   updateAge: 24 * 60 * 60, // 24 hours
   generateSessionToken

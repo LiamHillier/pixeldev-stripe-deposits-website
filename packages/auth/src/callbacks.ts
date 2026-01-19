@@ -86,9 +86,9 @@ export const callbacks = {
 
     return token;
   },
-  async session({ trigger, session, user }) {
-    if (session && user) {
-      session.user.id = user.id;
+  async session({ trigger, session, token }) {
+    if (session && token?.sub) {
+      session.user.id = token.sub;
     }
 
     // Let's not allow the client to update the session using useSession().update()
