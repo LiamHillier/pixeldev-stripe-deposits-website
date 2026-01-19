@@ -3,19 +3,22 @@
  *
  * Usage:
  *   cd packages/database
- *   npx tsx scripts/create-unlimited-license.ts
+ *   npx tsx scripts/create-unlimited-license.ts [password]
  *
  * Requires DATABASE_URL environment variable to be set.
+ * Optional: pass a password as argument, otherwise a random one is generated.
  */
 
 import { PrismaClient } from '@prisma/client';
 import { randomBytes } from 'crypto';
+import { hash } from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 const EMAIL = 'hello@takeshapeadventures.com.au';
 const ORG_NAME = 'TakeShape Adventures';
 const ORG_SLUG = 'takeshape-adventures';
+const BCRYPT_SALT_ROUNDS = 10;
 
 function generateLicenseKey(): string {
   return randomBytes(32).toString('hex'); // 64 character hex string
@@ -23,6 +26,11 @@ function generateLicenseKey(): string {
 
 async function main() {
   console.log('Creating unlimited license for:', EMAIL);
+
+  // Get password from command line args or generate random one
+  const passwordArg = process.argv[2];
+  const plainPassword = passwordArg || randomBytes(16).toString('base64').slice(0, 16);
+  const hashedPassword = await hash(plainPassword, BCRYPT_SALT_ROUNDS);
 
   // 1. Create or find user
   let user = await prisma.user.findUnique({
@@ -35,11 +43,21 @@ async function main() {
         email: EMAIL,
         name: ORG_NAME,
         emailVerified: new Date(),
+        password: hashedPassword,
       },
     });
     console.log('✓ Created user:', user.id);
+    console.log('✓ Password set');
   } else {
+    // Update password on existing user
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+      },
+    });
     console.log('✓ Found existing user:', user.id);
+    console.log('✓ Password updated');
   }
 
   // 2. Create or find organization
@@ -150,6 +168,7 @@ async function main() {
   console.log('');
   console.log('Summary:');
   console.log('  Email:', EMAIL);
+  console.log('  Password:', plainPassword);
   console.log('  Organization:', org.name, `(${org.slug})`);
   console.log('  Max Domains: Unlimited (999999)');
   console.log('  Expires: 2099-12-31');

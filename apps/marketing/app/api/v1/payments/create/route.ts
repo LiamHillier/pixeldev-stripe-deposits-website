@@ -126,12 +126,21 @@ export async function POST(request: Request): Promise<Response> {
 
     const stripe = new Stripe(stripeSecretKey);
 
-    // Look up organization by site URL to check license status
-    const organization = await prisma.organization.findFirst({
-      where: { siteUrl },
-      select: {
-        licenseStatus: true,
-        licenseExpiresAt: true,
+    // Normalize domain for license lookup (same as license register endpoint)
+    const normalizedDomain = siteUrl
+      .replace(/^https?:\/\//, '')
+      .replace(/^www\./, '')
+      .replace(/\/$/, '')
+      .toLowerCase();
+
+    // Look up license by domain activation
+    // Find any active license that has this domain activated
+    const domainActivation = await prisma.licenseDomainActivation.findFirst({
+      where: {
+        domain: normalizedDomain,
+      },
+      include: {
+        license: true,
       },
     });
 
@@ -139,14 +148,13 @@ export async function POST(request: Request): Promise<Response> {
     // 0% fee if license is active and not expired
     // 2% fee otherwise
     let hasValidLicense = false;
-    if (organization?.licenseStatus === 'active') {
-      // Check if license has expired
-      if (organization.licenseExpiresAt) {
-        hasValidLicense = new Date() < new Date(organization.licenseExpiresAt);
-      } else {
-        // No expiry date means lifetime license
-        hasValidLicense = true;
-      }
+    if (domainActivation?.license) {
+      const license = domainActivation.license;
+      const now = new Date();
+      // License is valid if: active, not deleted, and not expired
+      hasValidLicense = license.active &&
+        license.deletedAt === null &&
+        license.expiresAt > now;
     }
 
     const feePercentage = hasValidLicense ? 0 : 2;
