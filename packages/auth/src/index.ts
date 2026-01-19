@@ -17,10 +17,10 @@ export const authConfig = {
   secret: keys().AUTH_SECRET,
   session,
   pages: {
-    signIn: getPathname(routes.dashboard.auth.SignIn, baseUrl.Dashboard),
-    signOut: getPathname(routes.dashboard.auth.SignIn, baseUrl.Dashboard), // Don't need a sign out page
-    error: getPathname(routes.dashboard.auth.Error, baseUrl.Dashboard), // Error code passed in query string as ?error=ERROR_CODE
-    newUser: getPathname(routes.dashboard.onboarding.Index, baseUrl.Dashboard)
+    signIn: getPathname(routes.marketing.auth.SignIn, baseUrl.Marketing),
+    signOut: getPathname(routes.marketing.auth.SignIn, baseUrl.Marketing),
+    error: '/auth/error',
+    newUser: getPathname(routes.marketing.account.Index, baseUrl.Marketing)
   },
   callbacks,
   events,
