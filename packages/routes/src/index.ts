@@ -94,8 +94,12 @@ export const routes = {
     },
     Api: `${baseUrl.Marketing}/api`,
     auth: {
-      SignIn: `${baseUrl.Marketing}/auth/sign-in`,
-      ForgotPassword: `${baseUrl.Marketing}/auth/forgot-password`
+      ActivateAccount: (token: string) =>
+        `${baseUrl.Marketing}/auth/activate-account/${token}`,
+      ForgotPassword: `${baseUrl.Marketing}/auth/forgot-password`,
+      ResetPassword: (token: string) =>
+        `${baseUrl.Marketing}/auth/reset-password/${token}`,
+      SignIn: `${baseUrl.Marketing}/auth/sign-in`
     },
     Blog: `${baseUrl.Marketing}/blog`,
     Careers: `${baseUrl.Marketing}/careers`,

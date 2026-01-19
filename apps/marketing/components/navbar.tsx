@@ -138,7 +138,7 @@ export function Navbar(): React.JSX.Element {
           <div className="flex items-center gap-2">
             <ThemeToggle className="rounded-xl border-none shadow-none" />
             <Link
-              href={routes.dashboard.auth.SignIn}
+              href={routes.marketing.auth.SignIn}
               className={cn(
                 buttonVariants({
                   variant: 'outline'
@@ -149,7 +149,7 @@ export function Navbar(): React.JSX.Element {
               Sign in
             </Link>
             <Link
-              href={routes.dashboard.auth.SignUp}
+              href={routes.marketing.Pricing}
               className={cn(
                 buttonVariants({
                   variant: 'default'

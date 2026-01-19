@@ -126,7 +126,7 @@ function MainMobileMenu({
       <div className="flex size-full flex-col items-start space-y-3 p-4">
         <div className="flex w-full flex-col gap-2">
           <Link
-            href={routes.dashboard.auth.SignUp}
+            href={routes.marketing.Pricing}
             className={cn(
               buttonVariants({
                 variant: 'default',
@@ -139,7 +139,7 @@ function MainMobileMenu({
             Start for free
           </Link>
           <Link
-            href={routes.dashboard.auth.SignIn}
+            href={routes.marketing.auth.SignIn}
             onClick={onLinkClicked}
             className={cn(
               buttonVariants({
