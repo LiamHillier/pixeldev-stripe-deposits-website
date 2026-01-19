@@ -4,19 +4,21 @@ import { keys } from '../../../keys';
 import { type EmailPayload, type EmailProvider } from '../types';
 
 class PostmarkEmailProvider implements EmailProvider {
-  private readonly from: string;
-  private readonly client: postmark.ServerClient;
+  private from: string | null = null;
+  private client: postmark.ServerClient | null = null;
 
-  constructor() {
+  private initialize() {
+    if (this.client) return;
+
     const from = keys().EMAIL_FROM;
     if (!from) {
       throw new Error('Missing EMAIL_FROM in environment configuration');
     }
 
-    const serverToken = keys().EMAIL_POSTMARK_SERVER_TOKEN;
+    const serverToken = keys().POSTMARK_SERVER_TOKEN;
     if (!serverToken) {
       throw new Error(
-        'Missing EMAIL_POSTMARK_SERVER_TOKEN in environment configuration'
+        'Missing POSTMARK_SERVER_TOKEN in environment configuration'
       );
     }
 
@@ -27,13 +29,25 @@ class PostmarkEmailProvider implements EmailProvider {
   public async sendEmail(
     payload: EmailPayload
   ): Promise<postmark.Models.MessageSendingResponse> {
-    const response = await this.client.sendEmail({
-      From: this.from,
+    this.initialize();
+
+    const headers: postmark.Models.Header[] = [];
+    if (payload.messageId) {
+      headers.push({ Name: 'Message-ID', Value: payload.messageId });
+    }
+    if (payload.inReplyTo) {
+      headers.push({ Name: 'In-Reply-To', Value: payload.inReplyTo });
+      headers.push({ Name: 'References', Value: payload.inReplyTo });
+    }
+
+    const response = await this.client!.sendEmail({
+      From: this.from!,
       To: payload.recipient,
       Subject: payload.subject,
       HtmlBody: payload.html,
       TextBody: payload.text,
-      ReplyTo: payload.replyTo
+      ReplyTo: payload.replyTo,
+      Headers: headers.length > 0 ? headers : undefined
     });
     if (response.ErrorCode > 0) {
       throw new Error(response.Message);
