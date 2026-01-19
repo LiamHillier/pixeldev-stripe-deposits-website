@@ -1,34 +1,13 @@
 import { cookies } from 'next/headers';
-import { isAfter } from 'date-fns';
 import type { NextAuthConfig } from 'next-auth';
 
 import { prisma } from '@workspace/database/client';
-import { routes } from '@workspace/routes';
 
 import { adapter } from './adapter';
 import { AuthCookies } from './cookies';
-import { AuthErrorCode } from './errors';
-import { OAuthProvider, Provider } from './providers.types';
+import { Provider } from './providers.types';
 import { getRedirectToTotp } from './redirect';
 import { generateSessionToken, getSessionExpiryFromNow } from './session';
-
-async function isSignedIn(): Promise<boolean> {
-  const cookieStore = await cookies();
-  const currentSessionToken = cookieStore.get(AuthCookies.SessionToken)?.value;
-
-  if (currentSessionToken) {
-    const sessionFromDb = await prisma.session.findFirst({
-      where: { sessionToken: currentSessionToken },
-      select: { expires: true }
-    });
-
-    if (sessionFromDb) {
-      return isAfter(sessionFromDb.expires, new Date());
-    }
-  }
-
-  return false;
-}
 
 async function isAuthenticatorAppEnabled(userId: string): Promise<boolean> {
   const count = await prisma.authenticatorApp.count({
@@ -38,7 +17,7 @@ async function isAuthenticatorAppEnabled(userId: string): Promise<boolean> {
 }
 
 export const callbacks = {
-  async signIn({ user, account, profile }): Promise<string | boolean> {
+  async signIn({ user, account }): Promise<string | boolean> {
     if (!account) {
       return false;
     }
@@ -79,89 +58,8 @@ export const callbacks = {
       return true;
     }
 
-    // All OAuth Providers
-    if (!account.provider || !profile) {
-      return false;
-    }
-
-    if (
-      !Object.values(OAuthProvider).includes(
-        account.provider.toLowerCase() as OAuthProvider
-      )
-    ) {
-      return `${routes.dashboard.auth.Error}?error=${AuthErrorCode.IllegalOAuthProvider}`;
-    }
-
-    if (account.provider === OAuthProvider.Google) {
-      if (!profile.email_verified) {
-        return `${routes.dashboard.auth.Error}?error=${AuthErrorCode.UnverifiedEmail}`;
-      }
-    }
-
-    if (account.provider === OAuthProvider.MicrosoftEntraId) {
-      // Microsoft does not provide a verified email field
-      // If you want to have verified emails, the suggestion is to use the user here, e.g.
-      //
-      // if (!user.emailVerified || isBefore(new Date(), user.emailVerified)) {
-      //    /* send verification email */
-      //    return `${routes.dashboard.auth.verifyEmail.Index}.?email=${encodeURIComponent(parsedInput.email)}`
-      // }
-    }
-
-    // Check if this OAuth account already exists
-    const existingOAuthAccount = await prisma.account.findFirst({
-      where: {
-        provider: account.provider,
-        providerAccountId: account.providerAccountId
-      },
-      select: { userId: true }
-    });
-
-    const signedIn = await isSignedIn();
-    if (signedIn) {
-      // Explicit linking from security settings
-      if (existingOAuthAccount) {
-        // Todo redirect to the connected accounts page instead of orgs page
-        return `${routes.dashboard.organizations.Index}?error=${AuthErrorCode.AlreadyLinked}`;
-      }
-    } else {
-      // Continue with Google/Microsoft from auth pages
-      if (existingOAuthAccount) {
-        // MFA is required?
-        if (
-          existingOAuthAccount.userId &&
-          (await isAuthenticatorAppEnabled(existingOAuthAccount.userId))
-        ) {
-          return getRedirectToTotp(existingOAuthAccount.userId);
-        }
-      } else {
-        if (!profile.email) {
-          return `${routes.dashboard.auth.Error}?error=${AuthErrorCode.MissingOAuthEmail}`;
-        }
-
-        const existingUserByEmail = await prisma.user.findFirst({
-          where: { email: profile.email.toLowerCase() },
-          select: { id: true }
-        });
-
-        // If user exists and has MFA enabled, prevent auto-linking and require explicit linking
-        if (
-          existingUserByEmail &&
-          (await isAuthenticatorAppEnabled(existingUserByEmail.id))
-        ) {
-          return `${routes.dashboard.auth.Error}?error=${AuthErrorCode.RequiresExplicitLinking}`;
-        }
-      }
-    }
-
-    if (user?.name) {
-      user.name = user.name.substring(0, 64);
-    }
-    if (profile.name) {
-      profile.name = profile.name.substring(0, 64);
-    }
-
-    return true;
+    // No OAuth providers configured
+    return false;
   },
   async jwt({ token, trigger, account, user }) {
     if ((trigger === 'signIn' || trigger === 'signUp') && account) {

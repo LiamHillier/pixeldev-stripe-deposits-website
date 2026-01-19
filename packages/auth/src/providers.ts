@@ -2,10 +2,8 @@ import { Authenticator } from '@otplib/core';
 import { createDigest, createRandomBytes } from '@otplib/plugin-crypto';
 import { keyDecoder, keyEncoder } from '@otplib/plugin-thirty-two';
 import { isBefore, isValid } from 'date-fns';
-import { type NextAuthConfig, type User } from 'next-auth';
+import { type NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-import MicrosoftEntraIdProvider from 'next-auth/providers/microsoft-entra-id';
 
 import { prisma } from '@workspace/database/client';
 import { inMemoryRateLimiter } from '@workspace/rate-limit/in-memory';
@@ -277,49 +275,6 @@ export const providers = [
         email: user.email,
         name: user.name
       };
-    }
-  }),
-  GoogleProvider({
-    id: Provider.Google,
-    name: Provider.Google,
-    clientId: keys().AUTH_GOOGLE_CLIENT_ID!,
-    clientSecret: keys().AUTH_GOOGLE_CLIENT_SECRET!,
-    allowDangerousEmailAccountLinking: true,
-    authorization: {
-      params: {
-        scope: 'openid email profile',
-        prompt: 'consent',
-        access_type: 'offline',
-        response_type: 'code'
-      }
-    }
-  }),
-  MicrosoftEntraIdProvider({
-    id: Provider.MicrosoftEntraId,
-    name: Provider.MicrosoftEntraId,
-    clientId: keys().AUTH_MICROSOFT_ENTRA_ID_CLIENT_ID!,
-    clientSecret: keys().AUTH_MICROSOFT_ENTRA_ID_CLIENT_SECRET!,
-    allowDangerousEmailAccountLinking: true,
-    token: {
-      url: 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
-    },
-    authorization: {
-      url: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
-      params: {
-        scope: 'openid profile email offline_access User.Read'
-      }
-    },
-    userinfo: { url: 'https://graph.microsoft.com/oidc/userinfo' },
-    issuer: 'https://login.microsoftonline.com/common/v2.0',
-    profile(profile) {
-      // Removed the image fetching logic here, since it is unnecessary.
-      // We really only want to fetch the image once during Events.signIn({ isNewUser })
-      // and copy the image into our database.
-      return {
-        id: profile.sub,
-        name: profile.name,
-        email: profile.email
-      } as User;
     }
   })
 ] satisfies NextAuthConfig['providers'];

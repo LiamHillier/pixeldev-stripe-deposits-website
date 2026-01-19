@@ -9,7 +9,11 @@
       "Bash(netstat:*)",
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
-      "Bash(powershell \"Stop-Process -Id 13372 -Force\")"
+      "Bash(powershell \"Stop-Process -Id 13372 -Force\")",
+      "Bash(pnpm --filter marketing build:*)",
+      "Bash(pnpm --filter database db:generate:*)",
+      "Bash(pnpm --filter @workspace/database generate:*)",
+      "Bash(pnpm --filter @workspace/auth typecheck:*)"
     ],
     "deny": [],
     "ask": []
