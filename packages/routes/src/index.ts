@@ -82,7 +82,21 @@ export const routes = {
     }
   },
   marketing: {
+    account: {
+      Index: `${baseUrl.Marketing}/account`,
+      Invoices: `${baseUrl.Marketing}/account/invoices`,
+      License: `${baseUrl.Marketing}/account/license`,
+      Profile: `${baseUrl.Marketing}/account/profile`,
+      Subscription: `${baseUrl.Marketing}/account/subscription`,
+      Support: `${baseUrl.Marketing}/account/support`,
+      supportTicket: (ticketId: string) =>
+        `${baseUrl.Marketing}/account/support/${ticketId}`
+    },
     Api: `${baseUrl.Marketing}/api`,
+    auth: {
+      SignIn: `${baseUrl.Marketing}/auth/sign-in`,
+      ForgotPassword: `${baseUrl.Marketing}/auth/forgot-password`
+    },
     Blog: `${baseUrl.Marketing}/blog`,
     Careers: `${baseUrl.Marketing}/careers`,
     Contact: `${baseUrl.Marketing}/contact`,
@@ -142,4 +156,11 @@ export function getUserImageUrl(userId: string, hash: string): string {
 
 export function getContactImageUrl(contactId: string, hash: string): string {
   return `${routes.dashboard.Api}/contact-images/${contactId}?v=${hash}`;
+}
+
+export function getTicketAttachmentUrl(
+  attachmentId: string,
+  hash: string
+): string {
+  return `${routes.marketing.Api}/ticket-attachments/${attachmentId}?v=${hash}`;
 }

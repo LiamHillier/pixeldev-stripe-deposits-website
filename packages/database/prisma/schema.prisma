@@ -75,6 +75,27 @@ enum WebhookTrigger {
   CONTACT_DELETED @map("contactDeleted")
 }
 
+enum LicenseActivityType {
+  ACTIVATE        @map("activate")
+  DEACTIVATE      @map("deactivate")
+  AUTO_DEACTIVATE @map("autoDeactivate")
+}
+
+enum TicketStatus {
+  OPEN             @map("open")
+  IN_PROGRESS      @map("inProgress")
+  WAITING_CUSTOMER @map("waitingCustomer")
+  RESOLVED         @map("resolved")
+  CLOSED           @map("closed")
+}
+
+enum TicketPriority {
+  LOW    @map("low")
+  NORMAL @map("normal")
+  HIGH   @map("high")
+  URGENT @map("urgent")
+}
+
 // ---- Models ---- //
 
 model Account {
@@ -382,9 +403,11 @@ model Organization {
   contacts          Contact[]
   feedback          Feedback[]
   invitations       Invitation[]
+  licenses          License[]
   memberships       Membership[]
   orders            Order[]
   subscriptions     Subscription[]
+  supportTickets    SupportTicket[]
   webhooks          Webhook[]
 
   @@index([billingCustomerId], map: "IX_Organization_billingCustomerId")
@@ -424,6 +447,111 @@ model Session {
   @@index([userId], map: "IX_Session_userId")
 }
 
+model License {
+  id                String                    @id(map: "PK_License") @default(uuid()) @db.Uuid
+  organizationId    String                    @db.Uuid
+  subscriptionId    String?                   @db.Text
+  licenseKey        String                    @unique @db.VarChar(64)
+  activatedDomain   String?                   @db.VarChar(255) // Deprecated: use domainActivations
+  activatedAt       DateTime? // Deprecated: use domainActivations
+  maxDomains        Int                       @default(1)
+  expiresAt         DateTime                  @db.Timestamptz(6)
+  active            Boolean                   @default(true)
+  activationCount   Int                       @default(0)
+  deletedAt         DateTime?                 @db.Timestamptz(6)
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  organization      Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  subscription      Subscription?             @relation(fields: [subscriptionId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  activities        LicenseActivity[]
+  domainActivations LicenseDomainActivation[]
+
+  @@index([organizationId], map: "IX_License_organizationId")
+  @@index([licenseKey], map: "IX_License_licenseKey")
+  @@index([subscriptionId], map: "IX_License_subscriptionId")
+  @@index([deletedAt], map: "IX_License_deletedAt")
+}
+
+model LicenseActivity {
+  id         String              @id(map: "PK_LicenseActivity") @default(uuid()) @db.Uuid
+  licenseId  String              @db.Uuid
+  actionType LicenseActivityType
+  domain     String?             @db.VarChar(255)
+  ipAddress  String?             @db.VarChar(45)
+  metadata   Json?
+  occurredAt DateTime            @default(now())
+  license    License             @relation(fields: [licenseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([licenseId], map: "IX_LicenseActivity_licenseId")
+  @@index([occurredAt], map: "IX_LicenseActivity_occurredAt")
+}
+
+model LicenseDomainActivation {
+  id          String   @id(map: "PK_LicenseDomainActivation") @default(uuid()) @db.Uuid
+  licenseId   String   @db.Uuid
+  domain      String   @db.VarChar(255)
+  activatedAt DateTime @default(now())
+  ipAddress   String?  @db.VarChar(45)
+  metadata    Json?
+  license     License  @relation(fields: [licenseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([licenseId, domain], map: "UQ_LicenseDomainActivation_licenseId_domain")
+  @@index([licenseId], map: "IX_LicenseDomainActivation_licenseId")
+}
+
+model SupportTicket {
+  id             String                 @id(map: "PK_SupportTicket") @default(uuid()) @db.Uuid
+  ticketNumber   Int                    @unique @default(autoincrement())
+  organizationId String                 @db.Uuid
+  userId         String                 @db.Uuid
+  subject        String                 @db.VarChar(255)
+  status         TicketStatus           @default(OPEN)
+  priority       TicketPriority         @default(NORMAL)
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  organization   Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  messages       SupportTicketMessage[]
+
+  @@index([organizationId], map: "IX_SupportTicket_organizationId")
+  @@index([userId], map: "IX_SupportTicket_userId")
+  @@index([status], map: "IX_SupportTicket_status")
+  @@index([ticketNumber], map: "IX_SupportTicket_ticketNumber")
+}
+
+model SupportTicketMessage {
+  id          String                           @id(map: "PK_SupportTicketMessage") @default(uuid()) @db.Uuid
+  ticketId    String                           @db.Uuid
+  userId      String?                          @db.Uuid
+  isStaff     Boolean                          @default(false)
+  message     String                           @db.Text
+  messageId   String?                          @db.VarChar(255)
+  createdAt   DateTime                         @default(now())
+  ticket      SupportTicket                    @relation(fields: [ticketId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user        User?                            @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  attachments SupportTicketMessageAttachment[]
+
+  @@index([ticketId], map: "IX_SupportTicketMessage_ticketId")
+  @@index([userId], map: "IX_SupportTicketMessage_userId")
+  @@index([messageId], map: "IX_SupportTicketMessage_messageId")
+}
+
+model SupportTicketMessageAttachment {
+  id          String               @id(map: "PK_SupportTicketMessageAttachment") @default(uuid()) @db.Uuid
+  messageId   String               @db.Uuid
+  filename    String               @db.VarChar(255)
+  data        Bytes
+  contentType String               @db.VarChar(255)
+  contentId   String?              @db.VarChar(255)
+  size        Int
+  hash        String               @db.VarChar(64)
+  createdAt   DateTime             @default(now())
+  message     SupportTicketMessage @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([messageId], map: "IX_SupportTicketMessageAttachment_messageId")
+  @@index([contentId], map: "IX_SupportTicketMessageAttachment_contentId")
+}
+
 model Subscription {
   id                String             @id(map: "PK_Subscription") @db.Text
   organizationId    String             @db.Uuid
@@ -437,6 +565,7 @@ model Subscription {
   trialStartsAt     DateTime?          @db.Timestamptz(6)
   trialEndsAt       DateTime?          @db.Timestamptz(6)
   items             SubscriptionItem[]
+  licenses          License[]
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -461,23 +590,23 @@ model SubscriptionItem {
 }
 
 model User {
-  id                           String               @id(map: "PK_User") @default(uuid()) @db.Uuid
-  image                        String?              @db.VarChar(2048)
-  name                         String               @db.VarChar(64)
-  email                        String?              @unique
+  id                           String                 @id(map: "PK_User") @default(uuid()) @db.Uuid
+  image                        String?                @db.VarChar(2048)
+  name                         String                 @db.VarChar(64)
+  email                        String?                @unique
   emailVerified                DateTime?
-  password                     String?              @db.VarChar(60)
+  password                     String?                @db.VarChar(60)
   lastLogin                    DateTime?
-  phone                        String?              @db.VarChar(32)
-  locale                       String               @default("en-US") @db.VarChar(8)
-  completedOnboarding          Boolean              @default(false)
-  enabledContactsNotifications Boolean              @default(false)
-  enabledInboxNotifications    Boolean              @default(false)
-  enabledWeeklySummary         Boolean              @default(false)
-  enabledNewsletter            Boolean              @default(false)
-  enabledProductUpdates        Boolean              @default(false)
-  createdAt                    DateTime             @default(now())
-  updatedAt                    DateTime             @updatedAt
+  phone                        String?                @db.VarChar(32)
+  locale                       String                 @default("en-US") @db.VarChar(8)
+  completedOnboarding          Boolean                @default(false)
+  enabledContactsNotifications Boolean                @default(false)
+  enabledInboxNotifications    Boolean                @default(false)
+  enabledWeeklySummary         Boolean                @default(false)
+  enabledNewsletter            Boolean                @default(false)
+  enabledProductUpdates        Boolean                @default(false)
+  createdAt                    DateTime               @default(now())
+  updatedAt                    DateTime               @updatedAt
   accounts                     Account[]
   authenticatorApp             AuthenticatorApp?
   changeEmailRequests          ChangeEmailRequest[]
@@ -489,6 +618,8 @@ model User {
   notifications                Notification[]
   pageVisits                   ContactPageVisit[]
   sessions                     Session[]
+  supportTickets               SupportTicket[]
+  supportTicketMessages        SupportTicketMessage[]
 }
 
 model UserImage {

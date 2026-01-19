@@ -4,6 +4,8 @@ export type EmailPayload = {
   text: string;
   html: string;
   replyTo?: string;
+  messageId?: string;
+  inReplyTo?: string;
 };
 
 export type EmailProvider = {
