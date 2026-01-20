@@ -25,6 +25,7 @@ interface CreatePaymentIntentRequest {
   site_url: string;
   stripe_account_id: string; // Connected account ID from plugin
   idempotency_key?: string; // Optional idempotency key to prevent duplicate payments
+  description?: string; // Optional payment description (e.g., "Payment for Order #123")
 }
 
 /**
@@ -332,6 +333,8 @@ export async function POST(request: Request): Promise<Response> {
       confirm: false,
       // CRITICAL: Save payment method for future subscription use (off_session charges)
       setup_future_usage: 'off_session',
+      // Payment description shown in Stripe dashboard and customer statements
+      description: body.description || `Payment for Order #${body.order_id}`,
       metadata: {
         site_url: siteUrl,
         wp_order_id: body.order_id.toString(),
