@@ -1,0 +1,155 @@
+---
+title: Settings
+description: Configure gateway settings, payment reminders, and email templates.
+---
+
+Access settings at **WooCommerce > Settings > Payments > Stripe Deposits**.
+
+## Plan Selection Mode
+
+Determines how payment plans appear when multiple plans match a customer's cart.
+
+| Mode | Behavior |
+|------|----------|
+| **Priority Mode** | Only the highest-priority plan is shown. Simple choice between "Pay in Full" or the selected plan. |
+| **Customer Choice** | All matching plans are displayed. Customers choose between available options. |
+
+### When to Use Each Mode
+
+**Priority Mode** is best when:
+- You have one main payment plan
+- You want a simple checkout experience
+- Different plans target different customer segments (they won't overlap)
+
+**Customer Choice** is best when:
+- You offer multiple payment options (e.g., 3-month and 6-month plans)
+- You want customers to choose their preferred schedule
+- Plans may overlap for the same cart
+
+## Gateway Settings
+
+Configure how the payment method appears at checkout.
+
+| Setting | Description |
+|---------|-------------|
+| **Gateway Title** | Name shown at checkout (e.g., "Credit Card / Debit Card") |
+| **Gateway Description** | Additional text displayed during checkout |
+| **Test Mode** | Toggle between test and live Stripe keys |
+| **Maximum Payment Retries** | Number of retry attempts for failed payments (1-10) |
+
+### Payment Retries
+
+When a scheduled payment fails (e.g., expired card, insufficient funds), the system will automatically retry:
+
+- **Default:** 3 retries
+- **Maximum:** 10 retries
+- **Retry timing:** Configured in your Stripe subscription settings
+
+After all retries are exhausted, the payment plan is marked as failed and the customer is notified.
+
+## Email Settings
+
+Configure payment reminder notifications.
+
+### Enabling Reminders
+
+| Setting | Description |
+|---------|-------------|
+| **Enable Payment Reminders** | Toggle reminder emails on/off |
+| **Days Before Payment** | How many days before a payment to send the reminder |
+
+### Email Template Customization
+
+Customize every part of the reminder email:
+
+| Section | Description |
+|---------|-------------|
+| **Subject Line** | Email subject with placeholders |
+| **Email Heading** | Main title of the email |
+| **Body Introduction** | Opening greeting |
+| **Main Message** | Core content of the email |
+| **Footer Text** | Closing message |
+| **Button Text** | Call-to-action button label |
+
+### Available Placeholders
+
+Insert these anywhere in your templates:
+
+| Placeholder | Description |
+|-------------|-------------|
+| `{customer_name}` | Customer's first name |
+| `{order_number}` | WooCommerce order number |
+| `{order_url}` | Link to view order |
+| `{site_name}` | Your store name |
+| `{amount}` | Payment amount (formatted with currency) |
+| `{due_date}` | Payment due date |
+| `{days_until_due}` | Days until payment is due |
+| `{payment_number}` | e.g., "2 of 4" |
+
+### Example Templates
+
+**Subject Line:**
+```
+Reminder: Your {site_name} payment of {amount} is due in {days_until_due} days
+```
+
+**Main Message:**
+```
+Hi {customer_name},
+
+This is a friendly reminder that payment {payment_number} of {amount} is due on {due_date} for order #{order_number}.
+
+This payment will be automatically charged to your card on file. Please ensure you have sufficient funds available.
+```
+
+### Preview and Reset
+
+- **Preview:** See how your email will look before saving
+- **Reset to Default:** Restore the original template if needed
+
+## License Settings
+
+Access the **License** tab to manage your license key.
+
+### Pricing Tiers
+
+All tiers include the same features. The difference is the transaction fee:
+
+| Plan | Annual Price | Transaction Fee |
+|------|--------------|-----------------|
+| **Free** | $0 | 2% |
+| **Pro** | $99 | 1% |
+| **Business** | $199 | 0% |
+
+**All plans include:**
+- Unlimited payment plans
+- 20+ condition types
+- All schedule types
+- Direct Stripe integration
+- Customer payment portal
+- Automatic payment retries
+- Email notifications
+- Priority email support
+- Webhook integration
+
+### Activating Your License
+
+1. Go to the **License** tab
+2. Enter your license key
+3. Click **Activate License**
+4. Confirmation appears on successful activation
+
+### Managing Your License
+
+- **Deactivate:** Release your license for use on another site
+- **Check Status:** View current activation status
+- **Renewal:** Licenses renew annually
+
+## Next Steps
+
+<div className="mt-6">
+  <LinkedCard href="/docs/checkout">
+    <h3>Checkout Experience</h3>
+    <p>See how payment plans appear to customers</p>
+  </LinkedCard>
+</div>

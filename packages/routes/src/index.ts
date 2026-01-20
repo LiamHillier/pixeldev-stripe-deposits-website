@@ -106,6 +106,7 @@ export const routes = {
     Contact: `${baseUrl.Marketing}/contact`,
     CookiePolicy: `${baseUrl.Marketing}/cookie-policy`,
     Docs: `${baseUrl.Marketing}/docs`,
+    GetStarted: `${baseUrl.Marketing}/pricing`,
     Index: `${baseUrl.Marketing}/`,
     Pricing: `${baseUrl.Marketing}/pricing`,
     PrivacyPolicy: `${baseUrl.Marketing}/privacy-policy`,

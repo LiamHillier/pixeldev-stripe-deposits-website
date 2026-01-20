@@ -1,0 +1,195 @@
+---
+title: Troubleshooting
+description: Solutions for common issues with payment plans and Stripe integration.
+---
+
+## Connection Issues
+
+### Unable to Connect to Stripe
+
+**Symptoms:** Connect button fails, connection drops, or authorization errors.
+
+**Solutions:**
+
+1. **Check SSL Certificate** - Stripe requires HTTPS. Ensure your site has a valid SSL certificate.
+
+2. **Verify Stripe Account** - Make sure your Stripe account is fully verified and in good standing.
+
+3. **Clear Browser Cache** - Try disconnecting, clearing your browser cache, and reconnecting.
+
+4. **Check for Plugin Conflicts** - Temporarily disable other plugins to identify conflicts.
+
+### Connection Keeps Dropping
+
+**Symptoms:** Stripe shows as disconnected after being connected.
+
+**Solutions:**
+
+1. **Check Token Expiration** - Re-authorize by clicking Connect with Stripe again.
+
+2. **Verify Site URL** - If you changed your site URL, you'll need to reconnect.
+
+3. **Check Server Time** - Ensure your server time is accurate (OAuth tokens are time-sensitive).
+
+## Payment Plans Not Appearing
+
+### Plans Don't Show at Checkout
+
+**Symptoms:** Customers don't see payment plan options.
+
+**Checklist:**
+
+1. **Plan is Enabled** - Verify the plan toggle is on in the Plans tab.
+
+2. **Gateway is Enabled** - Check that Stripe Deposits is enabled in WooCommerce > Settings > Payments.
+
+3. **Conditions Match** - Review your plan conditions:
+   - Cart total meets requirements?
+   - Product categories match?
+   - Customer meets criteria?
+
+4. **Test with No Conditions** - Create a simple plan with no conditions to verify basic functionality.
+
+### Wrong Plan Appears
+
+**Symptoms:** Customers see a different plan than expected.
+
+**Solutions:**
+
+1. **Check Priority** - Lower numbers = higher priority. Adjust plan priorities.
+
+2. **Review Conditions** - Multiple plans may match. Check condition overlap.
+
+3. **Selection Mode** - In Priority Mode, only the highest-priority plan shows. Switch to Customer Choice to show all matching plans.
+
+## Payment Failures
+
+### Scheduled Payment Failed
+
+**Symptoms:** Installment payment was declined.
+
+**What Happens:**
+
+1. System automatically retries based on your retry settings (default: 3 attempts)
+2. Customer receives notification of the failure
+3. After max retries, plan is marked as failed
+
+**Resolution:**
+
+1. Check Stripe Dashboard for detailed error information
+2. Contact customer to update payment method if needed
+3. Customer can add a new card in their account
+
+### Common Decline Reasons
+
+| Reason | Solution |
+|--------|----------|
+| Insufficient funds | Customer needs to add funds or use different card |
+| Card expired | Customer needs to update payment method |
+| Card reported lost/stolen | Customer needs to use a different card |
+| Bank declined | Customer should contact their bank |
+| Incorrect CVC | Unlikely for saved cards; may indicate fraud |
+
+## Webhook Issues
+
+### Payment Status Not Updating
+
+**Symptoms:** Payments succeed in Stripe but order status doesn't update.
+
+**Solutions:**
+
+1. **Verify Webhook URL** - In Stripe Dashboard > Developers > Webhooks, check your endpoint is listed.
+
+2. **Check Webhook Status** - Look for failed webhook deliveries in Stripe Dashboard.
+
+3. **Test Webhook** - Use Stripe's "Send test webhook" feature.
+
+4. **Check Site Accessibility** - Ensure your site is publicly accessible (not behind HTTP auth or firewall).
+
+### Configuring Webhooks Manually
+
+If webhooks weren't auto-configured:
+
+1. Go to [Stripe Dashboard > Developers > Webhooks](https://dashboard.stripe.com/webhooks)
+2. Click **Add endpoint**
+3. Enter your webhook URL: `https://yoursite.com/wp-json/pixeldev-stripe-deposits/v1/webhook`
+4. Select events:
+   - `invoice.payment_succeeded`
+   - `invoice.payment_failed`
+   - `payment_intent.succeeded`
+   - `payment_intent.payment_failed`
+5. Click **Add endpoint**
+
+## Email Issues
+
+### Reminder Emails Not Sending
+
+**Symptoms:** Customers don't receive payment reminders.
+
+**Checklist:**
+
+1. **Reminders Enabled** - Check Email Settings tab.
+
+2. **Days Setting** - Verify "Days Before Payment" is set correctly.
+
+3. **WordPress Email** - Test that WordPress can send emails (try password reset).
+
+4. **Spam Folder** - Check customer's spam/junk folder.
+
+5. **Email Logs** - Use an email logging plugin to verify emails are being sent.
+
+### Email Content Issues
+
+**Symptoms:** Placeholders showing as `{placeholder}` instead of values.
+
+**Solutions:**
+
+1. **Check Placeholder Syntax** - Ensure curly braces are correct: `{customer_name}` not `{{customer_name}}`.
+
+2. **Reset Template** - Click "Reset to Default" and re-customize.
+
+## Testing
+
+### Test Card Numbers
+
+Use these Stripe test cards when in test mode:
+
+| Card Number | Description |
+|-------------|-------------|
+| `4242 4242 4242 4242` | Successful payment |
+| `4000 0000 0000 0002` | Card declined |
+| `4000 0000 0000 9995` | Insufficient funds |
+| `4000 0000 0000 3220` | 3D Secure authentication required |
+
+For all test cards:
+- **Expiry:** Any future date (e.g., 12/34)
+- **CVC:** Any 3 digits (e.g., 123)
+- **ZIP:** Any 5 digits (e.g., 12345)
+
+### Test ACH Bank Account
+
+For testing ACH payments:
+- Use Stripe's test bank account numbers from their documentation
+- Or use the "Test Institution" option in the bank connection flow
+
+## Getting Help
+
+If you're still experiencing issues:
+
+1. **Check Stripe Status** - Visit [status.stripe.com](https://status.stripe.com) for service issues.
+
+2. **Review Stripe Logs** - Check Stripe Dashboard > Developers > Logs for API errors.
+
+3. **Contact Support** - Licensed users get priority support. Include:
+   - WordPress and WooCommerce versions
+   - Plugin version
+   - Steps to reproduce the issue
+   - Any error messages
+   - Relevant Stripe log entries
+
+<div className="mt-6">
+  <LinkedCard href="/contact">
+    <h3>Contact Support</h3>
+    <p>Get help from our support team</p>
+  </LinkedCard>
+</div>

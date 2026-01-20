@@ -1,0 +1,264 @@
+---
+title: Conditions
+description: Use conditions to control which customers and carts qualify for payment plans.
+---
+
+Conditions determine when a payment plan is available. You can combine multiple conditions to create precise targeting rules.
+
+Try the interactive demo below to see how conditions work:
+
+<ConditionDemo />
+
+## Match Types
+
+Before adding conditions, choose how they should be evaluated:
+
+| Match Type | Behavior |
+|------------|----------|
+| **All conditions must match** | Every condition must be true (AND logic) |
+| **Any condition must match** | At least one condition must be true (OR logic) |
+
+## Cart Conditions
+
+Target orders based on cart contents and totals.
+
+### Cart Total
+
+Match based on the total cart value including tax and shipping.
+
+| Operator | Example |
+|----------|---------|
+| Greater Than | Cart total > $500 |
+| Less Than | Cart total < $100 |
+| Between | Cart total between $200 and $1000 |
+| Equals | Cart total = $500 |
+
+### Cart Subtotal
+
+Match based on cart value before tax and shipping.
+
+### Item Count
+
+Match based on the number of items in the cart.
+
+| Operator | Example |
+|----------|---------|
+| Greater Than | More than 3 items |
+| Less Than | Fewer than 10 items |
+| Equals | Exactly 5 items |
+
+### Cart Weight
+
+Match based on the total weight of cart items.
+
+### Coupon Applied
+
+Match when specific coupon codes are used.
+
+| Operator | Example |
+|----------|---------|
+| Contains Any | Has "SUMMER20" or "SAVE10" |
+| Does Not Contain | Doesn't have "NODEPOSIT" |
+
+## Product Conditions
+
+Target orders based on the products in the cart.
+
+### Product Category
+
+| Operator | Example |
+|----------|---------|
+| Contains Any | Cart has any product from "Events" or "Courses" |
+| Contains All | Cart has products from both "Premium" and "Bundle" |
+| Does Not Contain | Cart has no products from "Digital" |
+
+### Product Tag
+
+Works the same as categories but uses product tags.
+
+### Specific Products
+
+Target individual products by their ID.
+
+| Operator | Example |
+|----------|---------|
+| Contains Any | Cart contains Product #123 or #456 |
+| Contains All | Cart contains both Product #123 and #456 |
+| Does Not Contain | Cart doesn't contain Product #789 |
+
+### Product Type
+
+Match based on WooCommerce product types.
+
+| Type | Description |
+|------|-------------|
+| Simple | Standard products |
+| Variable | Products with variations |
+| Bundle | Bundled products |
+| Subscription | Subscription products |
+
+### Products On Sale
+
+| Option | Description |
+|--------|-------------|
+| Any | At least one product is on sale |
+| All | All products are on sale |
+| None | No products are on sale |
+
+### Product Meta Field
+
+Match based on custom product meta fields.
+
+| Operator | Example |
+|----------|---------|
+| Equals | `_custom_field` equals "premium" |
+| Not Equals | `_custom_field` not equals "excluded" |
+| Contains | `_custom_field` contains "vip" |
+| Exists | `_custom_field` exists on the product |
+
+## Customer Conditions
+
+Target orders based on who is checking out.
+
+### User Role
+
+Match WordPress user roles.
+
+| Operator | Example |
+|----------|---------|
+| Contains Any | User is "Subscriber" or "Customer" |
+| Contains All | User has both "VIP" and "Wholesale" roles |
+| Does Not Contain | User is not "Administrator" |
+
+### User Logged In
+
+| Option | Description |
+|--------|-------------|
+| Is Logged In | Customer has an account and is signed in |
+| Is Not Logged In | Guest checkout |
+
+### Customer Country
+
+Match based on the customer's billing country.
+
+### First Time Customer
+
+| Option | Description |
+|--------|-------------|
+| Is First Time | Customer has no previous orders |
+| Is Not First Time | Returning customer |
+
+### Customer Order Count
+
+Match based on the number of previous orders.
+
+| Operator | Example |
+|----------|---------|
+| Greater Than | More than 5 previous orders |
+| Less Than | Fewer than 3 previous orders |
+| Equals | Exactly 10 previous orders |
+
+### Customer Lifetime Value
+
+Match based on the total amount the customer has spent historically.
+
+| Operator | Example |
+|----------|---------|
+| Greater Than | Has spent more than $1000 |
+| Less Than | Has spent less than $100 |
+| Between | Has spent between $500 and $2000 |
+
+### User Meta Field
+
+Match based on custom user meta fields.
+
+## Date/Time Conditions
+
+Target orders based on when the checkout occurs.
+
+### Current Date
+
+| Operator | Example |
+|----------|---------|
+| Between | Between Dec 1 and Dec 31 |
+| Before | Before Jan 1, 2025 |
+| After | After June 1, 2025 |
+
+### Day of Week
+
+Match specific days. Useful for weekend-only or weekday-only plans.
+
+| Example |
+|---------|
+| Saturday and Sunday only |
+| Monday through Friday only |
+
+### Time of Day
+
+Match specific hours. Useful for time-limited offers.
+
+| Example |
+|---------|
+| Between 9 AM and 5 PM |
+| After 6 PM (evening special) |
+
+### Event End Date
+
+For products with event dates, match based on whether the event is in the future or past.
+
+### Days Until Event
+
+Match based on how many days until the product's event date.
+
+| Operator | Example |
+|----------|---------|
+| Greater Than | More than 30 days until event |
+| Less Than | Less than 7 days until event |
+| Equals | Exactly 14 days until event |
+
+## Condition Examples
+
+### Large Order Plan
+
+Offer payment plans only for orders over $500:
+- **Match:** All conditions
+- **Condition:** Cart Total > $500
+
+### VIP Customer Plan
+
+Special payment terms for high-value customers:
+- **Match:** All conditions
+- **Condition:** Customer Lifetime Value > $5000
+
+### Seasonal Event Plan
+
+Payment plan for event tickets during booking season:
+- **Match:** All conditions
+- **Conditions:**
+  - Product Category contains "Events"
+  - Current Date between October 1 and March 31
+
+### First-Time Customer Incentive
+
+Encourage new customers with flexible payments:
+- **Match:** All conditions
+- **Conditions:**
+  - First Time Customer = Is First Time
+  - Cart Total > $200
+
+### Weekend Flash Plan
+
+Special payment option available only on weekends:
+- **Match:** Any condition
+- **Conditions:**
+  - Day of Week contains Saturday
+  - Day of Week contains Sunday
+
+## Next Steps
+
+<div className="mt-6">
+  <LinkedCard href="/docs/settings">
+    <h3>Configure Settings</h3>
+    <p>Set up gateway options, emails, and more</p>
+  </LinkedCard>
+</div>

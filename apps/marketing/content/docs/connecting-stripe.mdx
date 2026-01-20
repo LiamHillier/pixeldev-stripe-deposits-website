@@ -1,0 +1,79 @@
+---
+title: Connecting Stripe
+description: Connect your Stripe account to accept deposits and payment plans.
+---
+
+The plugin uses Stripe Connect OAuth for secure authentication. This means you authorize the plugin to process payments on your behalf without sharing your API keys.
+
+## Initial Connection
+
+1. Navigate to **WooCommerce > Settings > Payments > Stripe Deposits**
+2. Click the **Connect with Stripe** button
+3. You'll be redirected to Stripe's authorization page
+4. Log in to your Stripe account (or create one if needed)
+5. Review the permissions and click **Authorize**
+6. You'll be redirected back to your WordPress admin
+
+Once connected, you'll see your Stripe account status displayed in the settings.
+
+<Callout>
+Your Stripe connection is securely encrypted using AES-256-CBC encryption. Your credentials are never stored in plain text.
+</Callout>
+
+## Test Mode vs Live Mode
+
+The plugin supports both test and live modes:
+
+| Mode | Use Case |
+|------|----------|
+| **Test Mode** | Development and testing. No real charges are made. |
+| **Live Mode** | Production. Real payments are processed. |
+
+### Switching Modes
+
+1. Go to **WooCommerce > Settings > Payments > Stripe Deposits**
+2. Find the **Test Mode** toggle
+3. Enable for testing, disable for live transactions
+
+<Callout>
+Always test your payment plans thoroughly in test mode before going live. Use Stripe's test card numbers to simulate different scenarios.
+</Callout>
+
+## Disconnecting Stripe
+
+To disconnect your Stripe account:
+
+1. Go to **WooCommerce > Settings > Payments > Stripe Deposits**
+2. Click the **Disconnect** button
+3. Confirm the disconnection
+
+You can reconnect at any time by clicking **Connect with Stripe** again.
+
+<Callout>
+Disconnecting will not affect existing payment plans. Customers with active plans will continue to be charged on schedule.
+</Callout>
+
+## Webhook Configuration
+
+Webhooks allow Stripe to notify your site when payments succeed or fail. The plugin automatically registers webhooks when you connect your Stripe account.
+
+If you need to manually verify webhooks:
+
+1. Log in to your [Stripe Dashboard](https://dashboard.stripe.com)
+2. Navigate to **Developers > Webhooks**
+3. Verify the endpoint URL matches your site
+
+The plugin listens for these events:
+- `invoice.payment_succeeded`
+- `invoice.payment_failed`
+- `payment_intent.succeeded`
+- `payment_intent.payment_failed`
+
+## Next Steps
+
+<div className="mt-6">
+  <LinkedCard href="/docs/payment-plans">
+    <h3>Create Your First Payment Plan</h3>
+    <p>Set up deposits and installment schedules</p>
+  </LinkedCard>
+</div>

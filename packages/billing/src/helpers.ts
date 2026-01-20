@@ -1,11 +1,5 @@
 import { billingConfig } from './config';
-import {
-  PriceInterval,
-  PriceModel,
-  PriceType,
-  type Plan,
-  type Price
-} from './schema';
+import { PriceModel, type Plan, type Price } from './schema';
 
 export function formatCurrency(cost: number, currency?: string): string {
   return new Intl.NumberFormat('en-US', {
@@ -15,17 +9,12 @@ export function formatCurrency(cost: number, currency?: string): string {
   }).format(cost);
 }
 
-export function formatPrice(price: Price, displayInterval: string): string {
+export function formatPrice(price: Price, _displayInterval: string): string {
   if (price.meter) {
     return 'Price Varies';
   }
 
-  const cost =
-    price.type === PriceType.Recurring && displayInterval === PriceInterval.Year
-      ? Number(price.cost / 12)
-      : price.cost;
-
-  return formatCurrency(cost, price.currency.toLowerCase());
+  return formatCurrency(price.cost, price.currency.toLowerCase());
 }
 
 export function getProductPricePair(priceId: string) {

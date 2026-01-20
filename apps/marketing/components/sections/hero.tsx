@@ -1,14 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   BoxIcon,
   ChevronRightIcon,
   CircuitBoardIcon,
   FileBarChartIcon,
-  LayoutIcon,
+  ShoppingCartIcon,
   PlayIcon
 } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -27,6 +26,13 @@ import {
 import { cn } from '@workspace/ui/lib/utils';
 
 import { GridSection } from '~/components/fragments/grid-section';
+import {
+  AllPlansMockup,
+  PlanEditorMockup,
+  ConditionBuilderMockup,
+  CheckoutMockup,
+  AdminDashboardMockup
+} from '~/components/hero/mockups';
 
 function HeroPill(): React.JSX.Element {
   return (
@@ -48,7 +54,7 @@ function HeroPill(): React.JSX.Element {
             orientation="vertical"
             className="mx-2"
           />
-          Put an announcement here 🎉
+          Now with ACH Bank Transfers & Stripe Link
           <ChevronRightIcon className="ml-1.5 size-3 shrink-0 text-foreground transition-transform group-hover:translate-x-0.5" />
         </Badge>
       </Link>
@@ -64,8 +70,7 @@ function HeroTitle(): React.JSX.Element {
       transition={{ delay: 0.2, duration: 0.4 }}
     >
       <h1 className="mt-6 text-center text-[48px] font-bold leading-[54px] tracking-[-1.2px] [font-kerning:none] sm:text-[56px] md:text-[64px] lg:text-[76px] lg:leading-[74px] lg:tracking-[-2px]">
-        Your revolutionary
-        <br /> Next.js SaaS
+        WooCommerce Payment Plans & Deposits Powered by Stripe
       </h1>
     </motion.div>
   );
@@ -79,8 +84,7 @@ function HeroDescription(): React.JSX.Element {
       transition={{ delay: 0.4, duration: 0.4 }}
       className="mx-auto mt-3 max-w-[560px] text-balance text-center text-lg leading-[26px] text-muted-foreground sm:text-xl lg:mt-6"
     >
-      This is a demo application built with Achromatic. It will save you time
-      and effort building your next SaaS.
+      Accept deposits and create automated payment plans. 20+ condition types, 3 schedule options, and direct Stripe integration—all for a fraction of BNPL fees.
     </motion.p>
   );
 }
@@ -94,7 +98,7 @@ function HeroButtons(): React.JSX.Element {
       className="mx-auto flex w-full flex-col gap-2 px-7 sm:w-auto sm:flex-row sm:px-0"
     >
       <Link
-        href={routes.dashboard.auth.SignUp}
+        href={routes.marketing.GetStarted}
         className={cn(
           buttonVariants({
             variant: 'default'
@@ -102,10 +106,10 @@ function HeroButtons(): React.JSX.Element {
           'h-10 rounded-xl sm:h-9'
         )}
       >
-        Start for free
+        Get Started Free
       </Link>
       <Link
-        href={routes.marketing.Contact}
+        href={routes.marketing.Docs}
         className={cn(
           buttonVariants({
             variant: 'outline'
@@ -113,7 +117,7 @@ function HeroButtons(): React.JSX.Element {
           'h-10 rounded-xl sm:h-9'
         )}
       >
-        Talk to sales
+        View Documentation
       </Link>
     </motion.div>
   );
@@ -219,35 +223,35 @@ function HeroIllustration(): React.JSX.Element {
               className="mx-1 px-2.5 sm:mx-2 sm:px-3"
             >
               <BoxIcon className="mr-2 size-4 shrink-0" />
-              Feature 1
+              Deposit Rules
             </UnderlinedTabsTrigger>
             <UnderlinedTabsTrigger
               value="feature2"
               className="mx-1 px-2.5 sm:mx-2 sm:px-3"
             >
               <PlayIcon className="mr-2 size-4 shrink-0" />
-              Feature 2
+              Payment Schedules
             </UnderlinedTabsTrigger>
             <UnderlinedTabsTrigger
               value="feature3"
               className="mx-1 px-2.5 sm:mx-2 sm:px-3"
             >
               <CircuitBoardIcon className="mr-2 size-4 shrink-0" />
-              Feature 3
+              Condition Builder
             </UnderlinedTabsTrigger>
             <UnderlinedTabsTrigger
               value="feature4"
               className="mx-1 px-2.5 sm:mx-2 sm:px-3"
             >
-              <LayoutIcon className="mr-2 size-4 shrink-0" />
-              Feature 4
+              <ShoppingCartIcon className="mr-2 size-4 shrink-0" />
+              Checkout
             </UnderlinedTabsTrigger>
             <UnderlinedTabsTrigger
               value="feature5"
               className="mx-1 px-2.5 sm:mx-2 sm:px-3"
             >
               <FileBarChartIcon className="mr-2 size-4 shrink-0" />
-              Feature 5
+              Admin Dashboard
             </UnderlinedTabsTrigger>
           </UnderlinedTabsList>
           <ScrollBar
@@ -257,98 +261,21 @@ function HeroIllustration(): React.JSX.Element {
         </ScrollArea>
         <div className="relative mb-1 w-full rounded-xl dark:border-none dark:bg-background">
           <SupportiveDashedGridLines />
-          <div className="relative z-20 bg-background">
+          <div className="relative z-20 rounded-xl border bg-background p-4 shadow">
             <UnderlinedTabsContent value="feature1">
-              <Image
-                priority
-                quality={100}
-                src="/assets/hero/light-feature1.webp"
-                width="1328"
-                height="727"
-                alt="Feature 1 screenshot"
-                className="block rounded-xl border shadow dark:hidden"
-              />
-              <Image
-                priority
-                quality={100}
-                src="/assets/hero/dark-feature1.webp"
-                width="1328"
-                height="727"
-                alt="Feature 1 screenshot"
-                className="hidden rounded-xl border shadow dark:block"
-              />
+              <AllPlansMockup />
             </UnderlinedTabsContent>
             <UnderlinedTabsContent value="feature2">
-              <Image
-                quality={100}
-                src="/assets/hero/light-feature2.webp"
-                width="1328"
-                height="727"
-                alt="Feature 2 screenshot"
-                className="block rounded-xl border shadow dark:hidden"
-              />
-              <Image
-                quality={100}
-                src="/assets/hero/dark-feature2.webp"
-                width="1328"
-                height="727"
-                alt="Feature 2 screenshot"
-                className="hidden rounded-xl border shadow dark:block"
-              />
+              <PlanEditorMockup />
             </UnderlinedTabsContent>
             <UnderlinedTabsContent value="feature3">
-              <Image
-                quality={100}
-                src="/assets/hero/light-feature3.webp"
-                width="1328"
-                height="727"
-                alt="Feature 3 screenshot"
-                className="block rounded-xl border shadow dark:hidden"
-              />
-              <Image
-                quality={100}
-                src="/assets/hero/dark-feature3.webp"
-                width="1328"
-                height="727"
-                alt="Feature 3 screenshot"
-                className="hidden rounded-xl border shadow dark:block"
-              />
+              <ConditionBuilderMockup />
             </UnderlinedTabsContent>
             <UnderlinedTabsContent value="feature4">
-              <Image
-                quality={100}
-                src="/assets/hero/light-feature4.webp"
-                width="1328"
-                height="727"
-                alt="Feature 4 screenshot"
-                className="block rounded-xl border shadow dark:hidden"
-              />
-              <Image
-                quality={100}
-                src="/assets/hero/dark-feature4.webp"
-                width="1328"
-                height="727"
-                alt="Feature 4 screenshot"
-                className="hidden rounded-xl border shadow dark:block"
-              />
+              <CheckoutMockup />
             </UnderlinedTabsContent>
             <UnderlinedTabsContent value="feature5">
-              <Image
-                quality={100}
-                src="/assets/hero/light-feature5.webp"
-                width="1328"
-                height="727"
-                alt="Feature 5 screenshot"
-                className="block rounded-xl border shadow dark:hidden"
-              />
-              <Image
-                quality={100}
-                src="/assets/hero/dark-feature5.webp"
-                width="1328"
-                height="727"
-                alt="Feature 5 screenshot"
-                className="hidden rounded-xl border shadow dark:block"
-              />
+              <AdminDashboardMockup />
             </UnderlinedTabsContent>
           </div>
         </div>

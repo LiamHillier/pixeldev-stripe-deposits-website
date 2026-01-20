@@ -104,6 +104,7 @@ const productSchema = z.object({
   hidden: z.boolean().optional(),
   isFree: z.boolean().optional(),
   isEnterprise: z.boolean().optional(),
+  transactionFee: z.number().min(0).max(100).optional(),
   features: z.array(z.string()),
   plans: z
     .array(planSchema)

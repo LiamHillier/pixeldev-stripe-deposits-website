@@ -1,0 +1,138 @@
+---
+title: Payment Plans
+description: Create and configure payment plans with deposits and installment schedules.
+---
+
+Payment plans let you split orders into a deposit and multiple installments. Navigate to **WooCommerce > Settings > Payments > Stripe Deposits** and select the **Plans** tab to get started.
+
+## Creating a Payment Plan
+
+Click **Add Plan** to create a new payment plan. Each plan has several configuration sections.
+
+### Basic Settings
+
+| Setting | Description |
+|---------|-------------|
+| **Plan Name** | Display name shown to customers (required) |
+| **Description** | Optional details about the plan |
+| **Enabled** | Toggle to activate/deactivate the plan |
+| **Priority** | Order when multiple plans match (lower = higher priority) |
+
+### Deposit Configuration
+
+Configure whether to require an upfront deposit:
+
+| Setting | Description |
+|---------|-------------|
+| **Enable Deposit** | Toggle to require a deposit payment |
+| **Deposit Type** | Choose "Percentage" or "Fixed Amount" |
+| **Deposit Value** | Amount as percentage (0-100%) or fixed currency amount |
+
+Try the interactive calculator below to see how deposits affect payment splits:
+
+<DepositCalculator />
+
+## Schedule Types
+
+Choose how payments are scheduled. The plugin offers three options. Use the interactive preview below to explore each type:
+
+<SchedulePreview />
+
+### Fixed Payments
+
+Set a specific number of installments with regular intervals.
+
+| Setting | Description |
+|---------|-------------|
+| **Number of Payments** | Total installments (e.g., 3, 4, 6) |
+| **First Payment Offset** | Delay before first installment after deposit |
+| **Payment Interval** | Frequency between payments (days/weeks/months) |
+
+**Example:** 4 monthly payments with 20% deposit on a $500 order:
+
+- Today: $100 deposit
+- Month 1: $100
+- Month 2: $100
+- Month 3: $100
+- Month 4: $100
+
+### ACF Date Field
+
+Dynamic scheduling based on a product's date field. Useful for events, courses, or seasonal products.
+
+| Setting | Description |
+|---------|-------------|
+| **ACF Field Name** | Name of the date field (e.g., "event_date") |
+| **Date Offset** | When to complete payments relative to the date |
+| **First Payment Offset** | Delay before first installment after deposit |
+| **Payment Interval** | Frequency between payments |
+
+**Example:** Event on December 31, with -1 month offset and monthly intervals. Payments are calculated to finish by November 30, and the system works backward to fit monthly payments between now and the deadline.
+
+<Callout>
+This schedule type requires the Advanced Custom Fields (ACF) plugin with a date field on your products.
+</Callout>
+
+### Due By Date
+
+All payments must complete by a specific deadline.
+
+| Setting | Description |
+|---------|-------------|
+| **Due Date** | Fixed deadline for final payment (YYYY-MM-DD) |
+| **First Payment Offset** | Delay before first installment after deposit |
+| **Payment Interval** | Frequency between payments |
+
+**Example:** Due by June 30, 2025 with monthly intervals. The system calculates how many monthly payments fit between now and the deadline and spreads the balance across available payment slots.
+
+## Payment Intervals
+
+Configure the timing between installments:
+
+| Setting | Description |
+|---------|-------------|
+| **Interval Value** | Number (e.g., 1, 2, 4) |
+| **Interval Unit** | Days, Weeks, or Months |
+
+**Common configurations:**
+
+- Monthly payments: Value = 1, Unit = Months
+- Bi-weekly payments: Value = 2, Unit = Weeks
+- Weekly payments: Value = 1, Unit = Weeks
+
+## First Payment Offset
+
+The first payment offset determines when the first installment is due after the deposit. This only applies when deposits are enabled.
+
+**Example:** With a 1-month first payment offset:
+
+- Deposit: Charged today
+- First installment: 1 month from today
+- Subsequent installments: Based on payment interval
+
+## Managing Plans
+
+### Enable/Disable Plans
+
+Toggle plans on or off without deleting them. Disabled plans won't appear at checkout.
+
+### Plan Priority
+
+When multiple plans match a customer's cart, priority determines which appears first:
+
+- Lower numbers = higher priority
+- In **Priority Mode**, only the highest-priority plan is shown
+- In **Customer Choice Mode**, all matching plans are shown, sorted by priority
+
+### Deleting Plans
+
+Click the delete button to remove a plan. This won't affect existing active payment plans for customers.
+
+## Next Steps
+
+<div className="mt-6">
+  <LinkedCard href="/docs/conditions">
+    <h3>Add Conditions</h3>
+    <p>Control which customers and carts qualify for each plan</p>
+  </LinkedCard>
+</div>

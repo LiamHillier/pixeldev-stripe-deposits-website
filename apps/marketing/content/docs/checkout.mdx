@@ -1,0 +1,134 @@
+---
+title: Checkout Experience
+description: How payment plans appear to customers during checkout.
+---
+
+When a customer qualifies for payment plans, they'll see options at checkout to either pay in full or select a payment plan.
+
+## Payment Plan Selection
+
+Customers see a payment plan selector with:
+
+1. **Pay in Full** - Standard single payment for the order total
+2. **Available Payment Plans** - One or more plan options with details
+
+Here's an interactive example of what customers see at checkout:
+
+<PaymentPlanCard />
+
+### What Customers See
+
+When a customer selects a payment plan, the display shows:
+
+- **Deposit Due Today** - Amount charged immediately
+- **Number of Installments** - Total payments in the plan
+- **Payment Schedule** - Dates and amounts for each payment
+- **Auto-Deduction Notice** - Reminder that future payments are automatic
+
+### Example Display
+
+For a $500 order with a 20% deposit and 4 monthly payments:
+
+```
+Due Today: $100.00 (Deposit)
+
+Payment Schedule:
+- March 15, 2025: $100.00
+- April 15, 2025: $100.00
+- May 15, 2025: $100.00
+- June 15, 2025: $100.00
+
+Your card will be automatically charged on each date.
+```
+
+## Payment Methods
+
+Customers can complete their purchase using:
+
+| Method | Description |
+|--------|-------------|
+| **Credit/Debit Card** | Visa, Mastercard, American Express, Discover |
+| **ACH Bank Transfer** | Direct bank payments (US customers only) |
+| **Stripe Link** | One-click checkout with saved payment info |
+
+<Callout>
+The same payment method is used for all future installments. Customers can update their payment method through their account or by contacting support.
+</Callout>
+
+## Customer Payment Flow
+
+### At Checkout
+
+1. Customer adds products to cart
+2. Proceeds to checkout
+3. Sees payment plan options if eligible
+4. Selects preferred payment option (full or plan)
+5. Enters payment details
+6. Completes order
+
+### After Checkout
+
+1. Deposit (or first payment) is charged immediately
+2. Order confirmation shows the full payment schedule
+3. Customer receives order confirmation email
+4. Payment reminders are sent before each due date (if enabled)
+5. Future payments are charged automatically
+
+### Order Confirmation
+
+After checkout, customers see:
+
+- Confirmation of deposit/first payment
+- Full payment schedule with dates and amounts
+- Remaining balance
+- Link to view order details
+
+## Customer Account
+
+Customers can view their payment plans in their WooCommerce account:
+
+- **Active Plans** - Plans with pending payments
+- **Payment History** - Completed payments
+- **Upcoming Payments** - Next scheduled payment date and amount
+- **Remaining Balance** - Total left to pay
+
+## Order Status
+
+Orders with payment plans follow this status flow:
+
+| Status | Description |
+|--------|-------------|
+| **Processing** | Deposit received, payment plan active |
+| **Completed** | All payments collected |
+| **On Hold** | Payment failed, awaiting retry or resolution |
+
+### Payment Status Badges
+
+The plugin uses color-coded badges to show payment status. Click each badge below to learn what it means:
+
+<StatusBadgeDemo />
+
+## Managing Failed Payments
+
+When a scheduled payment fails:
+
+1. **Automatic Retry** - System retries based on your retry settings
+2. **Customer Notification** - Customer receives email about the failure
+3. **Admin Notification** - You're notified of the failed payment
+4. **Manual Resolution** - Customer can update payment method
+
+### Common Failure Reasons
+
+- Insufficient funds
+- Expired card
+- Card reported lost/stolen
+- Bank declined transaction
+
+## Next Steps
+
+<div className="mt-6">
+  <LinkedCard href="/docs/troubleshooting">
+    <h3>Troubleshooting</h3>
+    <p>Solutions for common issues</p>
+  </LinkedCard>
+</div>

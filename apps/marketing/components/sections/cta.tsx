@@ -14,17 +14,17 @@ export function CTA(): React.JSX.Element {
     <GridSection className="bg-diagonal-lines">
       <div className="container flex flex-col items-center justify-between gap-6 bg-background py-16 text-center">
         <h3 className="m-0 max-w-fit text-3xl font-semibold md:text-4xl">
-          <TextGenerateEffect words="Ready to start?" />
+          <TextGenerateEffect words="Ready to offer flexible payment options?" />
         </h3>
         <BlurFade
           inView
           delay={0.6}
         >
           <Link
-            href={routes.dashboard.auth.SignUp}
+            href={routes.marketing.Pricing}
             className={cn(buttonVariants({ variant: 'default' }), 'rounded-xl')}
           >
-            Start for free
+            View Pricing
           </Link>
         </BlurFade>
       </div>

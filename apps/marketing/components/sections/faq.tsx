@@ -15,34 +15,27 @@ import { GridSection } from '~/components/fragments/grid-section';
 const DATA = [
   {
     question: `What does ${APP_NAME} do?`,
-    answer: `This is a demo application built with Achromatic. It will save you time and effort building your next SaaS. Here you would write something like "${APP_NAME} helps you manage customer relationships, organize sales activities and improve service delivery to make your business more efficient and successful."`
+    answer: `${APP_NAME} is a WooCommerce plugin that lets you accept deposit payments and create automated payment plans. Customers pay a deposit at checkout, and the remaining balance is automatically charged according to your schedule—whether that's fixed installments, event-date-based payments, or due-by-date schedules.`
   },
   {
-    question: 'How will this benefit my business?',
-    answer: `By centralizing your customer data and automating tasks, ${APP_NAME} makes it easier to track leads, manage your sales pipeline and collaborate with your team, saving you time and boosting your productivity.`
+    question: 'How is this different from Afterpay or Klarna?',
+    answer: `Unlike BNPL services that charge 4-8% per transaction and control your payment terms, ${APP_NAME} uses your existing Stripe account at standard processing rates (typically 2.9% + 30¢). You keep full control over deposit amounts, payment schedules, and which products or customers qualify for payment plans.`
   },
   {
-    question: 'Is my data safe?',
-    answer:
-      'Your data security is our top priority. We use advanced encryption and follow industry-standard security measures to keep your information protected and compliant.'
+    question: 'What payment methods are supported?',
+    answer: `${APP_NAME} supports all payment methods available through Stripe, including credit/debit cards, ACH bank transfers, and Stripe Link for faster checkout. ACH transfers offer lower processing fees, making them ideal for high-value purchases.`
   },
   {
-    question: 'What kind of integrations are available?',
-    answer: `${APP_NAME} supports integration with various business tools, including CRMs, email marketing software and collaboration platforms. Connect with Salesforce, HubSpot and more to create a seamless workflow.`
+    question: 'What schedule types are available?',
+    answer: `Three schedule types are available: Fixed Installments (split payments into equal amounts over time), Event Date-Based (schedule payments relative to a booking or event date), and Due-By-Date (set specific dates for each payment). Each can be customized to fit your business model.`
   },
   {
-    question: 'How easy is it to onboard my team?',
-    answer:
-      'The platform is designed for easy onboarding, with intuitive interfaces and step-by-step guides to help your team get up and running quickly.'
+    question: 'How do conditions work?',
+    answer: `Conditions let you target which carts, products, or customers see deposit options. With 20+ condition types, you can require deposits only for orders over a certain amount, specific product categories, customer roles, geographic regions, or time-based rules. Combine multiple conditions with AND/OR logic for precise targeting.`
   },
   {
-    question: 'What types of businesses can use this?',
-    answer: `${APP_NAME} is suitable for businesses of all sizes and industries, from startups to large enterprises, looking to streamline their customer relationship management.`
-  },
-  {
-    question: 'Can I customize this to fit my business needs?',
-    answer:
-      'Absolutely. You can customize workflows, fields and templates to suit the unique needs of your business.'
+    question: 'What happens if a payment fails?',
+    answer: `Stripe automatically retries failed payments and sends reminder emails to customers. You get full visibility into payment statuses through the admin dashboard, and can track which payments succeeded, failed, or are pending retry.`
   }
 ];
 

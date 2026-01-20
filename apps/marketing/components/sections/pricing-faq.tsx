@@ -14,96 +14,123 @@ import { GridSection } from '~/components/fragments/grid-section';
 
 const DATA = [
   {
-    question: `What pricing plans does ${APP_NAME} offer?`,
+    question: `What plans does ${APP_NAME} offer?`,
     answer: (
       <div>
-        We offer three plans:
+        We offer three plans designed for different business sizes:
         <br />
         <ul className="mt-2 list-disc pl-5">
           <li>
-            <strong>Free:</strong> A starter plan for individuals or small teams
+            <strong>Free:</strong> $0/year with a 2% transaction fee - perfect
+            for testing or low volume stores
           </li>
           <li>
-            <strong>Pro:</strong> Advanced features for growing businesses
+            <strong>Pro:</strong> $99/year with a 1% transaction fee - ideal for
+            small stores
           </li>
           <li>
-            <strong>Enterprise:</strong> Custom solutions for large
-            organizations
+            <strong>Business:</strong> $199/year with 0% transaction fee - best
+            for growing stores with higher volume
           </li>
         </ul>
-        <p className="mt-2">Each plan is designed to scale with your needs.</p>
       </div>
     )
   },
   {
-    question: "What's included in the Free plan?",
+    question: "What's the transaction fee?",
     answer: (
       <div>
-        The Free plan is perfect for getting started and includes:
+        The transaction fee is a percentage of each payment processed through
+        your payment plans:
         <ul className="mt-2 list-disc pl-5">
-          <li>AI Contact Scoring for 100 contacts/month</li>
-          <li>Smart Email Analysis for 1,000 emails/month</li>
-          <li>Access for up to 2 team members</li>
+          <li>
+            <strong>Free plan:</strong> 2% per transaction
+          </li>
+          <li>
+            <strong>Pro plan:</strong> 1% per transaction
+          </li>
+          <li>
+            <strong>Business plan:</strong> 0% per transaction
+          </li>
         </ul>
+        <p className="mt-2">
+          This fee is separate from Stripe's standard processing fees.
+        </p>
       </div>
     )
   },
   {
-    question: 'What features are in the Pro plan?',
+    question: 'When should I upgrade?',
     answer: (
       <div>
-        The Pro plan is ideal for growing teams and includes:
+        Here's a quick break-even calculation:
         <ul className="mt-2 list-disc pl-5">
-          <li>Unlimited AI Contact Scoring and Email Analysis</li>
-          <li>Advanced Lead Predictions</li>
-          <li>Real-time Sentiment Analysis</li>
-          <li>Up to 120 team members</li>
+          <li>
+            <strong>Free → Pro ($99/year):</strong> Worth it if you process more
+            than ~$10,000/year (1% savings on $10k = $100)
+          </li>
+          <li>
+            <strong>Pro → Business ($199/year):</strong> Worth it if you process
+            more than ~$10,000/year (1% savings on $10k = $100 difference from
+            Pro)
+          </li>
         </ul>
+        <p className="mt-2">
+          As your store grows, upgrading saves you money in the long run.
+        </p>
       </div>
     )
   },
   {
-    question: 'What does the Enterprise plan offer?',
+    question: 'What features are included?',
     answer: (
       <div>
-        The Enterprise plan is fully customizable and includes:
+        All plans include the full feature set:
         <ul className="mt-2 list-disc pl-5">
-          <li>AI Contact Scoring and Email Analysis with custom limits</li>
-          <li>Custom AI models for Lead Predictions</li>
-          <li>Advanced storage solutions</li>
-          <li>24/7 Enterprise Support</li>
-          <li>Unlimited team members</li>
+          <li>Unlimited payment plans</li>
+          <li>20+ condition types</li>
+          <li>All schedule types</li>
+          <li>Direct Stripe integration</li>
+          <li>Customer payment portal</li>
+          <li>Automatic payment retries</li>
+          <li>Email notifications</li>
+          <li>Priority email support</li>
+          <li>Webhook integration</li>
         </ul>
-        <p className="mt-2">Contact us to discuss your organization's needs.</p>
+        <p className="mt-2">
+          The only difference between plans is the transaction fee.
+        </p>
       </div>
     )
   },
   {
-    question: 'What happens if I upgrade or downgrade my plan?',
+    question: 'How does billing work?',
     answer: (
       <p>
-        If you upgrade, you'll be charged a prorated amount for the remaining
-        time in your billing cycle. If you downgrade, the changes will take
-        effect at the end of your current billing cycle.
+        All paid plans are billed yearly. You'll be charged once per year for
+        your subscription, and your transaction fees are calculated based on
+        your plan's rate.
       </p>
     )
   },
   {
-    question: 'Is there a setup fee?',
+    question: 'Can I switch plans?',
     answer: (
       <p>
-        No, there are no setup fees. You can start using {APP_NAME} immediately
-        after signing up.
+        Yes, you can upgrade or downgrade at any time. When you upgrade, you'll
+        pay a prorated amount for the remainder of your billing cycle. When you
+        downgrade, the change takes effect at the end of your current billing
+        period.
       </p>
     )
   },
   {
-    question: 'What happens if I exceed my plan limits?',
+    question: 'What payment methods are accepted?',
     answer: (
       <p>
-        If you exceed your plan limits, you'll receive an alert and can either
-        upgrade to a higher plan or adjust your usage to stay within your
-        current plan.
+        We use Stripe for secure payment processing. You can pay with any major
+        credit card (Visa, Mastercard, American Express) or other payment
+        methods supported by Stripe in your region.
       </p>
     )
   }

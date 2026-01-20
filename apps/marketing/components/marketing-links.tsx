@@ -3,13 +3,14 @@ import {
   BookIcon,
   BookOpenIcon,
   BoxIcon,
-  CircuitBoardIcon,
+  CalendarIcon,
   CodeIcon,
+  CreditCardIcon,
   CuboidIcon,
-  FileBarChartIcon,
+  FilterIcon,
   LayoutIcon,
-  PlayIcon,
-  SendHorizonalIcon
+  SendHorizonalIcon,
+  UserIcon
 } from 'lucide-react';
 
 import { baseUrl, routes } from '@workspace/routes';
@@ -26,38 +27,38 @@ export const MENU_LINKS = [
     title: 'Product',
     items: [
       {
-        title: 'Feature 1',
-        description: 'Short description here',
+        title: 'Deposit Payments',
+        description: 'Accept deposits at checkout',
         icon: <BoxIcon className="size-5 shrink-0" />,
-        href: '#',
+        href: '/features/deposits',
         external: false
       },
       {
-        title: 'Feature 2',
-        description: 'Short description here',
-        icon: <PlayIcon className="size-5 shrink-0" />,
-        href: '#',
+        title: 'Payment Schedules',
+        description: '3 flexible schedule types',
+        icon: <CalendarIcon className="size-5 shrink-0" />,
+        href: '/features/payment-plans',
         external: false
       },
       {
-        title: 'Feature 3',
-        description: 'Short description here',
-        icon: <CircuitBoardIcon className="size-5 shrink-0" />,
-        href: '#',
+        title: 'Condition Rules',
+        description: '20+ targeting conditions',
+        icon: <FilterIcon className="size-5 shrink-0" />,
+        href: '/features/conditions',
         external: false
       },
       {
-        title: 'Feature 4',
-        description: 'Short description here',
-        icon: <LayoutIcon className="size-5 shrink-0" />,
-        href: '#',
+        title: 'Stripe Integration',
+        description: 'Cards, ACH, and Stripe Link',
+        icon: <CreditCardIcon className="size-5 shrink-0" />,
+        href: '/features/stripe-integration',
         external: false
       },
       {
-        title: 'Feature 5',
-        description: 'Short description here',
-        icon: <FileBarChartIcon className="size-5 shrink-0" />,
-        href: '#',
+        title: 'Customer Portal',
+        description: 'Self-service payment management',
+        icon: <UserIcon className="size-5 shrink-0" />,
+        href: '/features/customer-portal',
         external: false
       }
     ]
@@ -101,13 +102,13 @@ export const MENU_LINKS = [
     external: false
   },
   {
-    title: 'Blog',
-    href: routes.marketing.Blog,
+    title: 'Documentation',
+    href: routes.marketing.Docs,
     external: false
   },
   {
-    title: 'Story',
-    href: routes.marketing.Story,
+    title: 'Contact',
+    href: routes.marketing.Contact,
     external: false
   }
 ];
@@ -116,28 +117,18 @@ export const FOOTER_LINKS = [
   {
     title: 'Product',
     links: [
-      { name: 'Feature 1', href: '#', external: false },
-      { name: 'Feature 2', href: '#', external: false },
-      { name: 'Feature 3', href: '#', external: false },
-      { name: 'Feature 4', href: '#', external: false },
-      { name: 'Feature 5', href: '#', external: false }
+      { name: 'Deposit Payments', href: '/features/deposits', external: false },
+      { name: 'Payment Schedules', href: '/features/payment-plans', external: false },
+      { name: 'Condition Rules', href: '/features/conditions', external: false },
+      { name: 'Stripe Integration', href: '/features/stripe-integration', external: false },
+      { name: 'Customer Portal', href: '/features/customer-portal', external: false }
     ]
   },
   {
     title: 'Resources',
     links: [
       { name: 'Contact', href: routes.marketing.Contact, external: false },
-      { name: 'Roadmap', href: routes.marketing.Roadmap, external: true },
-      { name: 'Docs', href: routes.marketing.Docs, external: false },
-      { name: 'API Reference', href: baseUrl.PublicApi, external: true }
-    ]
-  },
-  {
-    title: 'About',
-    links: [
-      { name: 'Story', href: routes.marketing.Story, external: false },
-      { name: 'Blog', href: routes.marketing.Blog, external: false },
-      { name: 'Careers', href: routes.marketing.Careers, external: false }
+      { name: 'Docs', href: routes.marketing.Docs, external: false }
     ]
   },
   {
@@ -201,19 +192,50 @@ export const DOCS_LINKS = [
         items: []
       },
       {
-        title: 'Dependencies',
-        href: '/docs/dependencies',
+        title: 'Installation',
+        href: '/docs/installation',
+        items: []
+      },
+      {
+        title: 'Connecting Stripe',
+        href: '/docs/connecting-stripe',
         items: []
       }
     ]
   },
   {
-    title: 'Guides',
+    title: 'Configuration',
     icon: <BookIcon className="size-4 shrink-0 text-muted-foreground" />,
     items: [
       {
-        title: 'Using MDX',
-        href: '/docs/using-mdx',
+        title: 'Payment Plans',
+        href: '/docs/payment-plans',
+        items: []
+      },
+      {
+        title: 'Conditions',
+        href: '/docs/conditions',
+        items: []
+      },
+      {
+        title: 'Settings',
+        href: '/docs/settings',
+        items: []
+      }
+    ]
+  },
+  {
+    title: 'Reference',
+    icon: <BookIcon className="size-4 shrink-0 text-muted-foreground" />,
+    items: [
+      {
+        title: 'Checkout Experience',
+        href: '/docs/checkout',
+        items: []
+      },
+      {
+        title: 'Troubleshooting',
+        href: '/docs/troubleshooting',
         items: []
       }
     ]

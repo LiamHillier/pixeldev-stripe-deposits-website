@@ -20,6 +20,13 @@ import {
 import { cn } from '@workspace/ui/lib/utils';
 
 import { Callout } from '~/components/blog/callout';
+import {
+  ConditionDemo,
+  DepositCalculator,
+  PaymentPlanCard,
+  SchedulePreview,
+  StatusBadgeDemo
+} from '~/components/docs/interactive';
 
 const components = {
   h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -246,7 +253,12 @@ const components = {
       )}
       {...props}
     />
-  )
+  ),
+  ConditionDemo,
+  DepositCalculator,
+  PaymentPlanCard,
+  SchedulePreview,
+  StatusBadgeDemo
 };
 
 type MdxProps = {

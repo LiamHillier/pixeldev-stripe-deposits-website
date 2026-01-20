@@ -7,24 +7,24 @@ import { NumberTicker } from '~/components/fragments/number-ticket';
 
 const DATA = [
   {
-    value: 55,
+    value: 75,
     suffix: '%',
-    description: 'Increased conversion'
+    description: 'Lower fees vs BNPL services'
   },
   {
-    value: 4,
-    suffix: 'x',
-    description: 'Improved retention'
-  },
-  {
-    value: 97,
-    suffix: '%',
-    description: 'Statisfaction rate'
-  },
-  {
-    value: 450,
+    value: 20,
     suffix: '+',
-    description: 'Customers in 85 countries'
+    description: 'Condition types available'
+  },
+  {
+    value: 3,
+    suffix: '',
+    description: 'Flexible schedule types'
+  },
+  {
+    value: 2.9,
+    suffix: '%',
+    description: 'Standard Stripe processing'
   }
 ];
 

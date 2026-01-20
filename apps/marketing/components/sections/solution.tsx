@@ -19,12 +19,12 @@ export function Solution(): React.JSX.Element {
           <div className="container relative space-y-10">
             <div>
               <h2 className="mb-2.5 text-3xl font-semibold md:text-5xl">
-                The next-gen SaaS
+                The Complete WooCommerce Payment Plan Solution
               </h2>
               <p className="mt-1 max-w-2xl text-muted-foreground md:mt-6">
-                {APP_NAME} is the engine that builds, scales and grows your
-                company to the next level. Reminder that this is a demo and some
-                of the features below don't exists.
+                {APP_NAME} gives you complete control over deposits and payment
+                schedules. Built for WooCommerce stores selling tours, events,
+                high-value products, and services.
               </p>
             </div>
             <div className="mx-auto xl:container xl:rounded-xl xl:bg-neutral-50 xl:p-6 dark:xl:bg-neutral-900">
@@ -65,20 +65,20 @@ export function Solution(): React.JSX.Element {
             <div className="grid gap-10 sm:container lg:grid-cols-2">
               <div className="order-1 lg:order-2">
                 <h2 className="mb-2.5 mt-8 text-3xl font-semibold md:text-5xl">
-                  Your personal operating system
+                  Built for How You Sell
                 </h2>
                 <p className="mt-1 text-muted-foreground md:mt-6">
-                  Harness the power of AI to transform your business and
-                  automate almost everything with workflows.
+                  Flexible payment options that adapt to your business model
+                  and customer needs.
                 </p>
                 <ul className="mt-6 list-none flex-wrap items-center gap-6 space-y-3 md:flex md:space-y-0">
                   {[
-                    'AI-driven insights',
-                    'Smart automation',
-                    'Adaptive workflows',
-                    'Predictive analytics',
-                    'Natural language processing',
-                    'Auto task prioritization'
+                    '20+ condition types',
+                    'Fixed installment schedules',
+                    'Event date-based payments',
+                    'Due-by-date schedules',
+                    'ACH bank transfers',
+                    'Stripe Link support'
                   ].map((feature) => (
                     <li
                       key={feature}

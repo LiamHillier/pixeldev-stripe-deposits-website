@@ -1,51 +1,61 @@
 ---
 title: Introduction
-description: Learn how to navigate and use the platform with ease through this documentation.
+description: Accept deposits and offer flexible payment plans for your WooCommerce store with Stripe.
 ---
 
-Our documentation is designed to empower developers, administrators, and users with comprehensive, accessible guidance. Whether you're taking your first steps or diving deep into advanced features, this guide provides the insights you need to maximize your platform experience.
+Deposits and Payment Plans for Stripe WooCommerce enables you to accept deposits and split payments into installments, giving your customers flexible ways to pay while ensuring you get paid on time.
 
-## Purpose and Scope
+## What You Can Do
 
-This documentation serves as your comprehensive roadmap, offering:
+- **Accept Deposits** - Collect a percentage or fixed amount upfront at checkout
+- **Create Payment Plans** - Split the remaining balance into automatic installments
+- **Target Specific Customers** - Use 20+ conditions to control who sees which plans
+- **Automate Payments** - Stripe automatically charges customers on schedule
+- **Send Reminders** - Notify customers before each payment is due
 
-- Clear, step-by-step instructions
-- Practical tutorials and real-world examples
-- Insights into platform capabilities and best practices
+## How It Works
 
-## Key Objectives
+1. **Customer checks out** and selects a payment plan
+2. **Deposit is charged** immediately to their card, ACH, or Stripe Link
+3. **Remaining payments** are automatically charged on the scheduled dates
+4. **Reminders are sent** before each payment (optional)
 
-Our goal is to help you:
+## Payment Methods
 
-- Quickly understand platform fundamentals
-- Solve complex challenges efficiently
-- Implement best practices
-- Optimize your workflow
+The plugin supports three payment methods through Stripe:
 
-## Navigation Strategies
+| Method | Description |
+|--------|-------------|
+| **Credit/Debit Cards** | Visa, Mastercard, American Express, and more |
+| **ACH Bank Transfer** | Direct bank payments for US customers |
+| **Stripe Link** | One-click checkout with saved payment info |
 
-### Table of Contents
+## Quick Start
 
-Use the structured menu to explore topics systematically. Each section is organized logically to support progressive learning.
+<div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-6">
+  <LinkedCard href="/docs/installation">
+    <h3>Installation</h3>
+    <p>Install and activate the plugin</p>
+  </LinkedCard>
+  <LinkedCard href="/docs/connecting-stripe">
+    <h3>Connect Stripe</h3>
+    <p>Link your Stripe account</p>
+  </LinkedCard>
+  <LinkedCard href="/docs/payment-plans">
+    <h3>Create Plans</h3>
+    <p>Set up your first payment plan</p>
+  </LinkedCard>
+  <LinkedCard href="/docs/conditions">
+    <h3>Add Conditions</h3>
+    <p>Target specific customers and carts</p>
+  </LinkedCard>
+</div>
 
-### Search Functionality
+## Requirements
 
-Leverage the powerful search feature to instantly locate specific information, code snippets, or troubleshooting guides.
+Before installing, ensure your environment meets these requirements:
 
-## Learning Approach
-
-We've crafted this documentation with several principles in mind:
-
-- Clarity over complexity
-- Practical, actionable guidance
-- Consistent, user-friendly formatting
-- Progressive learning path from basics to advanced techniques
-
-## Getting the Most from This Guide
-
-1. Start with the "Getting Started" section
-2. Follow tutorials sequentially
-3. Experiment with code examples
-4. Refer back to specific sections as needed
-
-By investing time in understanding these resources, you'll transform from a novice user to a platform expert.
+- WordPress 6.0 or higher
+- PHP 7.4 or higher
+- WooCommerce 8.0 or higher
+- SSL certificate (HTTPS) - required for Stripe

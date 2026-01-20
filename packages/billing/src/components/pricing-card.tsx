@@ -70,6 +70,9 @@ export function PricingCard({
             selectedInterval={selectedInterval}
           />
         )}
+        {product.transactionFee !== undefined && (
+          <TransactionFeeDisplay fee={product.transactionFee} />
+        )}
         <CheckoutButton
           product={product}
           plan={plan}
@@ -150,7 +153,7 @@ function PriceInfo({
           <>
             {primaryPrice.type === PriceType.Recurring && (
               <span className="text-muted-foreground text-sm leading-loose">
-                / month
+                / year
               </span>
             )}
             {primaryPrice.model === PriceModel.PerSeat && (
@@ -161,6 +164,26 @@ function PriceInfo({
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+type TransactionFeeDisplayProps = {
+  fee: number;
+};
+
+function TransactionFeeDisplay({ fee }: TransactionFeeDisplayProps) {
+  const isZeroFee = fee === 0;
+  return (
+    <div
+      className={cn(
+        'text-sm font-medium py-1.5 px-3 rounded-md inline-block',
+        isZeroFee
+          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+          : 'bg-muted text-muted-foreground'
+      )}
+    >
+      {fee}% transaction fee
     </div>
   );
 }
@@ -209,7 +232,7 @@ function CheckoutButton({
       href={
         product.isEnterprise
           ? routes.marketing.Contact
-          : routes.dashboard.auth.SignUp
+          : routes.marketing.GetStarted
       }
       className={cn(
         buttonVariants({

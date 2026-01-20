@@ -7,13 +7,28 @@ import {
 } from './schema';
 
 enum Feature {
-  AICustomerScoring = 'AI Contact Scoring',
-  SmartEmailAnalysis = 'Smart Email Analysis',
-  LeadPredictions = 'Lead Predictions',
-  SentimentAnalysis = 'Sentiment Analysis',
-  DataStorage = 'Data Storage',
-  ExtendedSupport = 'Extended Support'
+  UnlimitedPlans = 'Unlimited payment plans',
+  AllConditionTypes = '20+ condition types',
+  AllScheduleTypes = 'All schedule types',
+  StripeIntegration = 'Direct Stripe integration',
+  CustomerPortal = 'Customer payment portal',
+  AutomaticRetries = 'Automatic payment retries',
+  EmailNotifications = 'Email notifications',
+  PrioritySupport = 'Priority email support',
+  WebhookIntegration = 'Webhook integration'
 }
+
+const allFeatures = [
+  Feature.UnlimitedPlans,
+  Feature.AllConditionTypes,
+  Feature.AllScheduleTypes,
+  Feature.StripeIntegration,
+  Feature.CustomerPortal,
+  Feature.AutomaticRetries,
+  Feature.EmailNotifications,
+  Feature.PrioritySupport,
+  Feature.WebhookIntegration
+];
 
 const currency = 'USD';
 
@@ -22,32 +37,18 @@ export const billingConfig = createBillingConfig({
     {
       id: 'free',
       name: 'Free',
-      description: 'Start for free.',
+      description: 'Get started with a 2% transaction fee.',
       label: 'Get started',
       isFree: true,
-      features: [Feature.AICustomerScoring, Feature.SmartEmailAnalysis],
-      // Even if it is free, keep the plans and prices to display the interval and currency correctly
+      transactionFee: 2,
+      features: allFeatures,
       plans: [
-        {
-          id: 'plan-free-month',
-          displayIntervals: [PriceInterval.Month],
-          prices: [
-            {
-              id: 'price-free-month-id', // a placebo ID is fine here
-              type: PriceType.Recurring,
-              model: PriceModel.Flat,
-              interval: PriceInterval.Month,
-              cost: 0,
-              currency
-            }
-          ]
-        },
         {
           id: 'plan-free-year',
           displayIntervals: [PriceInterval.Year],
           prices: [
             {
-              id: 'price-free-year-id', // a placebo ID is fine here
+              id: 'price-free-year-id',
               interval: PriceInterval.Year,
               type: PriceType.Recurring,
               model: PriceModel.Flat,
@@ -61,46 +62,23 @@ export const billingConfig = createBillingConfig({
     {
       id: 'pro',
       name: 'Pro',
-      description: 'Best for most teams.',
+      description: 'Reduced fees for growing stores.',
       label: 'Get started',
-      recommended: true,
-      features: [
-        Feature.AICustomerScoring,
-        Feature.SmartEmailAnalysis,
-        Feature.SentimentAnalysis,
-        Feature.LeadPredictions
-      ],
+      transactionFee: 1,
+      features: allFeatures,
       plans: [
-        {
-          id: 'plan-pro-month',
-          displayIntervals: [PriceInterval.Month],
-          trialDays: 7,
-          prices: [
-            {
-              id:
-                keys().NEXT_PUBLIC_BILLING_PRICE_PRO_MONTH_ID ||
-                'price-pro-month-id', // keep for marketing pages, so you only need to specify id in dashboard
-              interval: PriceInterval.Month,
-              type: PriceType.Recurring,
-              model: PriceModel.Flat,
-              cost: 24,
-              currency
-            }
-          ]
-        },
         {
           id: 'plan-pro-year',
           displayIntervals: [PriceInterval.Year],
-          trialDays: 7,
           prices: [
             {
               id:
                 keys().NEXT_PUBLIC_BILLING_PRICE_PRO_YEAR_ID ||
-                'price-pro-year-id', // keep for marketing pages, so you only need to specify id in dashboard
+                'price-pro-year-id',
               interval: PriceInterval.Year,
               type: PriceType.Recurring,
               model: PriceModel.Flat,
-              cost: 199,
+              cost: 99,
               currency
             }
           ]
@@ -108,80 +86,26 @@ export const billingConfig = createBillingConfig({
       ]
     },
     {
-      id: 'lifetime',
-      name: 'Lifetime',
-      description: 'Buy once. Use forever.',
+      id: 'business',
+      name: 'Business',
+      description: 'Zero fees for established stores.',
       label: 'Get started',
-      features: [
-        Feature.AICustomerScoring,
-        Feature.SmartEmailAnalysis,
-        Feature.SentimentAnalysis,
-        Feature.LeadPredictions
-      ],
+      recommended: true,
+      transactionFee: 0,
+      features: allFeatures,
       plans: [
         {
-          id: 'lifetime',
-          displayIntervals: [PriceInterval.Month, PriceInterval.Year],
-          prices: [
-            {
-              id:
-                keys().NEXT_PUBLIC_BILLING_PRICE_LIFETIME_ID ||
-                'price-lifetime-id', // keep for marketing pages, so you only need to specify id in dashboard
-              type: PriceType.OneTime,
-              model: PriceModel.Flat, // only flat is supported for PriceType.OneTime
-              interval: undefined,
-              cost: 699,
-              currency
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 'enterprise',
-      name: 'Enterprise',
-      description: 'Best for tailored requirements.',
-      label: 'Contact us',
-      isEnterprise: true,
-      features: [
-        Feature.AICustomerScoring,
-        Feature.SmartEmailAnalysis,
-        Feature.SentimentAnalysis,
-        Feature.LeadPredictions,
-        Feature.DataStorage,
-        Feature.ExtendedSupport
-      ],
-      // The idea is to keep the product and prices and use an admin panel to update the customer to enterprise.
-      // For enterprise you can have multiple products, you just need to set hidden: true on the other enterprise products.
-      plans: [
-        {
-          id: 'plan-enterprise-month',
-          displayIntervals: [PriceInterval.Month],
-          prices: [
-            {
-              id:
-                keys().NEXT_PUBLIC_BILLING_PRICE_ENTERPRISE_MONTH_ID ||
-                'price-enterprise-month-id', // keep for marketing pages, so you only need to specify id in dashboard
-              interval: PriceInterval.Month,
-              type: PriceType.Recurring,
-              model: PriceModel.Flat,
-              cost: 39,
-              currency
-            }
-          ]
-        },
-        {
-          id: 'plan-enterprise-year',
+          id: 'plan-business-year',
           displayIntervals: [PriceInterval.Year],
           prices: [
             {
               id:
-                keys().NEXT_PUBLIC_BILLING_PRICE_ENTERPRISE_YEAR_ID ||
-                'price-enterprise-year-id', // keep for marketing pages, so you only need to specify id in dashboard
+                keys().NEXT_PUBLIC_BILLING_PRICE_BUSINESS_YEAR_ID ||
+                'price-business-year-id',
               interval: PriceInterval.Year,
               type: PriceType.Recurring,
               model: PriceModel.Flat,
-              cost: 399,
+              cost: 199,
               currency
             }
           ]

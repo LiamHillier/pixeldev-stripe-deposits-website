@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BarChartIcon, UserPlusIcon, WorkflowIcon } from 'lucide-react';
+import { BanknoteIcon, ShoppingCartIcon, SlidersHorizontalIcon } from 'lucide-react';
 
 import { BlurFade } from '~/components/fragments/blur-fade';
 import { GridSection } from '~/components/fragments/grid-section';
@@ -7,22 +7,22 @@ import { TextGenerateWithSelectBoxEffect } from '~/components/fragments/text-gen
 
 const DATA = [
   {
-    icon: <UserPlusIcon className="size-5 shrink-0" />,
-    title: 'Problem 1',
+    icon: <BanknoteIcon className="size-5 shrink-0" />,
+    title: 'BNPL Services Are Expensive',
     description:
-      'Describe a significant problem your ideal customer profile has. Explain how this problem impacts their goals or daily operations.'
+      'Afterpay, Klarna, and Affirm charge 4-8% per transaction. For a $2,000 booking, that\'s $80-160 in fees. Our plugin uses your existing Stripe account at standard rates.'
   },
   {
-    icon: <BarChartIcon className="size-5 shrink-0" />,
-    title: 'Problem 2',
+    icon: <ShoppingCartIcon className="size-5 shrink-0" />,
+    title: 'Cart Abandonment on High-Ticket Items',
     description:
-      'Describe a significant problem your ideal customer profile has. Explain how this problem impacts their goals or daily operations.'
+      'Customers abandon carts when they can\'t afford the full price upfront. Without deposit options, you lose sales to competitors offering payment flexibility.'
   },
   {
-    icon: <WorkflowIcon className="size-5 shrink-0" />,
-    title: 'Problem 3',
+    icon: <SlidersHorizontalIcon className="size-5 shrink-0" />,
+    title: 'No Control Over Payment Terms',
     description:
-      'Describe a significant problem your ideal customer profile has. Explain how this problem impacts their goals or daily operations.'
+      'Generic BNPL services dictate your payment terms. You can\'t customize schedules around event dates, seasonal needs, or customer segments.'
   }
 ];
 
@@ -31,7 +31,7 @@ export function Problem(): React.JSX.Element {
     <GridSection>
       <div className="px-4 py-20 text-center">
         <h2 className="text-3xl font-semibold md:text-5xl">
-          <TextGenerateWithSelectBoxEffect words="Attention Grabbing Title" />
+          <TextGenerateWithSelectBoxEffect words="High-Value Sales Deserve Better Payment Options" />
         </h2>
       </div>
       <div className="grid divide-y border-t border-dashed md:grid-cols-3 md:divide-x md:divide-y-0">
