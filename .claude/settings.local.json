@@ -13,7 +13,11 @@
       "Bash(pnpm --filter marketing build:*)",
       "Bash(pnpm --filter database db:generate:*)",
       "Bash(pnpm --filter @workspace/database generate:*)",
-      "Bash(pnpm --filter @workspace/auth typecheck:*)"
+      "Bash(pnpm --filter @workspace/auth typecheck:*)",
+      "Bash(grep:*)",
+      "WebSearch",
+      "Bash(npm view:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []
